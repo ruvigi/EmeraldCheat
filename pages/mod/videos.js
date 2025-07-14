@@ -3,12 +3,11 @@ let videoTimestamp;
 let videoLastTuple;
 
 async function openVideos(panel, userPanel) {
-    await loadVideos();
+    await loadVideos(!videoItems || videoItems.length === 0);
     if (videoItems.length === 0) {
         createElement("a", panel, {className:"heading", text: "videos", href:"/cheat/mod"});
         createElement("span", panel, {text:"no videos"});
         let videosReloadElement = createElement("a", panel, {className: "button", text:"reload", onclick:e => {e.target.innerHTML = "loading"; internalReloadMain();}});
-        panel.innerHTML = `&lt;3`;
         onKeyDown = e => { if(!e.ctrlKey && e.key === "r") { videosReloadElement.innerHTML = "loading"; internalReloadMain(); }};
     } else {
         setLoading(panel);

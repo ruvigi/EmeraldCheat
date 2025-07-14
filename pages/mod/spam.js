@@ -4,7 +4,7 @@ let spamLastTuple;
 let spamIgnored = (getStorageJSON("spamIgnored") ?? []).filter(item => new Date() - new Date(item.latest_message) < 86400000);
 
 async function openSpam(panel, userPanel) {
-    await loadSpam(config.modAsLists);
+    await loadSpam(config.modAsLists || !spamItems || spamItems.length === 0);
     if (spamItems.length === 0) {
         createElement("a", panel, {className:"heading", text: "spam", href:"/cheat/mod"});
         createElement("span", panel, {text:"no spam"});

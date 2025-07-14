@@ -1,5 +1,6 @@
 //any tags that include any of these will be highlighted as they are ban-worthy
-const susInterestParts = ["mlm", "alm", "mla", "shota", "pdo", "creep", "creepy", "pervert", "molest", "session", "zoophilia", "minecraft", "jailbait", "cunny", "tween", "preteen", "underaged", "dad", "perv", "zoo", "taboo", "pdf", "lxli", "ped", "pedo", "pedophile", "pedophilia", "pxd", "pxdo", "yng", "young", "baby", "toddler", "newborn", "dog", "dogs", "horse", "horses", "horse cock", "rape", "rxpe", "rapist", "minor", "minors", "underage", "map", "aam", "kid", "kids", "cartography", "vid", "vids", "trade", "trading", "mega", "link", "links", "little", "beast", "beastiality", "knot", "dog knot", "loli", "lolita", "school", "high school", "middle school", "elementary", "elementary school", "mom", "mum", "mother", "cousin", "uncle", "father", "sis", "bro", "sibling", "siblings", "teen", "teens", "boy", "boys", "child", "children", "roblox", "fortnite", "brother", "sister", "incest", "grandma", "grandmother", "grandpa", "grandfather", "family", "niece", "aunt", "daughter", "son", "groom", "grooming", "groomed", "robux"];
+const badInterestParts = ["snuff", "necro", "infant", "cest", "cp", "cheese pizza", "cheesepizza", "sixteen", "seventeen", "babysitting", "file", "twelve", "preteens", "highschool", "fifteen", "fourteen", "thirteen", "cub", "mlm", "alm", "mla", "shota", "pdo", "molest", "zoophilia", "jailbait", "cunny", "tween", "preteen", "underaged", "zoo", "pdf", "lxli", "ped", "pedo", "pedophile", "pedophilia", "pxd", "pxdo", "baby", "toddler", "newborn", "horse cock", "rape", "rxpe", "rapist", "minor", "minors", "underage", "map", "aam", "kid", "kids", "cartography", "beast", "beastiality", "knot", "dog knot", "loli", "lolita", "high school", "middle school", "elementary", "elementary school", "cousin", "uncle", "sibling", "siblings", "child", "children", "incest", "grandma", "grandmother", "grandpa", "grandfather", "family", "niece", "aunt", "daughter", "son", "groom", "groomer", "grooming", "groomed"];
+const susInterestParts = ["parent", "parents", "yung", "sitting", "forced", "noncon", "teenager", "creep", "creepy", "pervert", "session", "minecraft", "dad", "perv", "taboo", "yng", "young", "dog", "dogs", "horse", "horses", "vid", "vids", "trade", "trading", "mega", "link", "links", "little", "school", "mom", "mum", "mother", "father", "sis", "bro", "teen", "teens", "boy", "boys", "roblox", "fortnite", "brother", "sister", "robux"];
 
 //opens the user panel for the given user ID
 async function openUser(panel, userId) {
@@ -16,7 +17,7 @@ async function openUser(panel, userId) {
         let quickBanContainer = createElement("div", panel, {className:"quick-bans"});
 
         let banOptions = [];
-        if (user.temp) {
+        if ((new Date() - new Date(user.created_at) < 259200000) && !user.platinum && !user.gold) {
             banOptions.push({ name: "cp/csa", duration: ban3d.value, reason: banCSA.value });
             banOptions.push({ name: "illegal", duration: ban3d.value, reason: banIllegal.value });
         } else {
@@ -50,7 +51,13 @@ async function openUser(panel, userId) {
     if (user.interests.length > 0) {
         let interestContainer = createElement("div", panel, {className:"interests"});
         for (let interest of user.interests) {
-            createElement("span", interestContainer, {text:interest.name, className:susInterestParts.some(p => interest.name.split(" ").includes(p) || interest.name === p.split("").join(" ")) ? "text-red" : ""});
+            if (badInterestParts.some(p => interest.name.split(" ").includes(p) || interest.name === p.split("").join(" ") || interest.name === p)) {
+                createElement("span", interestContainer, {text:interest.name, className: "text-red"});
+            } else if (susInterestParts.some(p => interest.name.split(" ").includes(p) || interest.name === p.split("").join(" ") || interest.name === p)) {
+                createElement("span", interestContainer, {text:interest.name, className: "text-gold"});
+            } else {
+                createElement("span", interestContainer, {text:interest.name});
+            }
         }
     }
 

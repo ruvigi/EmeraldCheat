@@ -235,7 +235,7 @@ async function open1v1Channel(panel, userPanel, roomId) {
                                 input.classList.remove("typing");
                             }
                         }
-                        createElement("a", messageContainer, { text: "next bitch!", href: "/cheat/chat/1v1" });
+                        createElement("a", messageContainer, { text: "next bitch!", className: "button", href: "/cheat/chat/1v1", style: "width: fit-content; margin: 0.25rem;" });
                         scrollToBottom();
                     }
                 }

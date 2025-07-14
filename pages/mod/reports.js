@@ -3,12 +3,11 @@ let reportTimestamp;
 let reportLastTuple;
 
 async function openReports(panel, userPanel) {
-    await loadReports();
+    await loadReports(!reportItems || reportItems.length === 0);
     if (reportItems.length === 0) {
         createElement("a", panel, {className:"heading", text: "reports", href:"/cheat/mod"});
         createElement("span", panel, {text:"no reports"});
-        let reportsReloadElement = createElement("a", panel, {className: "button", text:"reload", onclick:e => {e.target.innerHTML = "loading"; internalReloadMain(); }});
-        panel.innerHTML = `&lt;3`;
+        let reportsReloadElement = createElement("a", panel, {className: "button", text:"reload", onclick:e => {e.target.innerHTML = "loading"; internalReloadMain();}});
         onKeyDown = e => { if(!e.ctrlKey && e.key === "r") { reportsReloadElement.innerHTML = "loading"; internalReloadMain(); }};
     } else {
         setLoading(panel);
