@@ -4,11 +4,14 @@ let csrf;
 //stolen WebSocket URL
 let cableUrl;
 
-async function loadJSON(url, noAlerts) {
+async function loadJSON(url, noAlerts, noRetry) {
     try {
         let response = await fetch(url);
         if (response.status === 200 && response.headers.get("content-type") && response.headers.get("content-type").includes("application/json")) {
             return await response.json();
+        } else if ((response.status === 429 || response.status === 503) && !noRetry) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return await loadJSON(url, noAlerts, true);
         } else if (!noAlerts) {
             switch (response.status) {
                 case 429:
