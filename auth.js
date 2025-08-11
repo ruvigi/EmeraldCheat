@@ -8,7 +8,7 @@ async function loadCurrentUser() {
         if (response.status === 200 && response.headers.get("content-type") && response.headers.get("content-type").includes("application/json")) {
             currentUser = await response.json();
         } else {
-            window.location.assign("https://emeraldchat.com/");
+            window.location.assign("https://emeraldchat.com/app");
         }
     } catch {
         alert("failed to load the current user :(");
