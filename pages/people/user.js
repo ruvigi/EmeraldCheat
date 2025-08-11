@@ -28,12 +28,12 @@ async function openUser(panel, userId) {
         for (let quickBan of banOptions) {
             createElement("a", quickBanContainer, {className:"small-button", text:quickBan.name, onclick:async e => {
                 if (e.target.classList.contains("confirm")) {
-                    e.target.classList.remove("confirm");
-                    e.target.innerHTML = "banning...";
-                    await banUser(user.id, quickBan.duration, quickBan.reason);
                     if (quickBan.duration >= ban10y.value) {
                         navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\n`);
                     }
+                    e.target.classList.remove("confirm");
+                    e.target.innerHTML = "banning...";
+                    await banUser(user.id, quickBan.duration, quickBan.reason);
                     e.target.innerHTML = quickBan.name;
                     if (!e.target.classList.contains("text-highlighted")) {
                         e.target.classList.add("text-highlighted");
