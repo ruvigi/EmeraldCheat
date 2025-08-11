@@ -109,6 +109,12 @@ function resetUserPanel() {
 }
 
 async function loadPage(usesMainPanel, usesUserPanel, func) {
+    //close fullscreen images
+    for (let image of document.getElementsByClassName("image fullscreen")) {
+        image.remove();
+    }
+
+    //init
     let time = new Date().valueOf();
     let url = location.href;
 
