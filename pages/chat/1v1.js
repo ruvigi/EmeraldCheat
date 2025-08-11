@@ -87,7 +87,12 @@ async function open1v1Channel(panel, userPanel, roomId) {
         }
 
         for (let line of message.messages) {
-            createElement("span", lastColumn, { text: line });
+            let imageUrl = decodeURIComponent(line).split(" ").find(word => word.startsWith("i.imgur.com/") && !word.includes("@"));
+            if (imageUrl) {
+                createElement("img", lastColumn, { className: "image", style: "width: 9rem; height: 9rem;", src: `https://${imageUrl}` });
+            } else {
+                createElement("span", lastColumn, { text: line });
+            }
         }
     }
 
