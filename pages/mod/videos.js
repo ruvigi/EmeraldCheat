@@ -168,9 +168,7 @@ async function loadVideos(forceReload) {
     let items1 = await promise1;
     let items2 = await promise2;
     if (items1 && items2) {
-        let items = [...new Set([...items1, ...items2])];
-        shuffleArray(items);
-        videoItems = items;
+        videoItems = mergeAndShuffle(items1, items2);
         videoTimestamp = new Date();
     }
 }

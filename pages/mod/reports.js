@@ -106,9 +106,7 @@ async function loadReports(forceReload) {
     let items1 = await promise1;
     let items2 = await promise2;
     if (items1 && items2) {
-        let items = [...new Set([...items1, ...items2])];
-        shuffleArray(items);
-        reportItems = items;
+        reportItems = mergeAndShuffle(items1, items2);
         reportTimestamp = new Date();
     }
 }

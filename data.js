@@ -70,6 +70,17 @@ function shuffleArray(array) {
     }
 }
 
+function mergeAndShuffle(items1, items2) {
+    let map = new Map();
+    for (let item of [...items1, ...items2]) {
+        map.set(JSON.stringify(item), item);
+    }
+
+    let items = Array.from(map.values());
+    shuffleArray(items);
+    return items;
+}
+
 function roleName(user) {
     return user.master ? "master" : user.mod ? "mod" : user.platinum ? "platinum" : user.gold ? "gold" : !user.temp ? "registered" : "temp";
 }
