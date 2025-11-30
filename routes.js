@@ -10,7 +10,7 @@ async function render() {
 
 
             case "/cheat": //main menu
-                loadPage(true, true, (mainPanel, userPanel) => {
+                await loadPage(true, true, (mainPanel, userPanel) => {
                     createElement("span", mainPanel, {className:"heading", text:"emeraldcheat"});
                     let container = createElement("div", mainPanel, { className: "flex-column menu" });
                     if (currentUser.mod) {
@@ -22,20 +22,20 @@ async function render() {
                     createElement("a", container, {className:"button", text:"settings", href:"/cheat/settings"});
                 });
                 break;
-            case "/cheat/settings": loadPage(true, true, openSettings); break;
-            case "/cheat/settings/quick-bans": loadPage(true, true, openQuickBanSettings); break;
-            case "/cheat/notifications": loadPage(false, true, openNotifications); break;
-            case "/cheat/messages": loadPage(false, true, openMessages); break;
+            case "/cheat/settings": await loadPage(true, true, openSettings); break;
+            case "/cheat/settings/quick-bans": await loadPage(true, true, openQuickBanSettings); break;
+            case "/cheat/notifications": await loadPage(false, true, openNotifications); break;
+            case "/cheat/messages": await loadPage(false, true, openMessages); break;
 
 
-            case "/cheat/chat/1v1": loadPage(true, true, open1v1); break;
-            case "/cheat/chat/direct": loadPage(false, true, openDirectChat); break;
-            case "/cheat/chat/groups": loadPage(true, true, openGroups); break;
-            case "/cheat/chat/group": loadPage(true, true, openGroup); break;
+            case "/cheat/chat/1v1": await loadPage(true, true, open1v1); break;
+            case "/cheat/chat/direct": await loadPage(false, true, openDirectChat); break;
+            case "/cheat/chat/groups": await loadPage(true, true, openGroups); break;
+            case "/cheat/chat/group": await loadPage(true, true, openGroup); break;
 
 
             case "/cheat/people": //people of walmart
-                loadPage(true, false, (mainPanel) => {
+                await loadPage(true, false, (mainPanel) => {
                     createElement("a", mainPanel, {className:"heading", text:"people", href: "/cheat"});
                     let container = createElement("div", mainPanel, { className: "flex-column menu" });
                     createElement("a", container, {className:"button", text:"friends", href:"/cheat/people/friends"});
@@ -45,13 +45,13 @@ async function render() {
                 });
                 break;
             case "/cheat/people/user": await loadPage(false, true, openUser); break;
-            case "/cheat/people/friends": loadPage(true, false, openFriends); break;
-            case "/cheat/people/online-friends": loadPage(true, false, openOnlineFriends); break;
-            case "/cheat/people/search": loadPage(true, false, openSearch); break;
+            case "/cheat/people/friends": await loadPage(true, false, openFriends); break;
+            case "/cheat/people/online-friends": await loadPage(true, false, openOnlineFriends); break;
+            case "/cheat/people/search": await loadPage(true, false, openSearch); break;
 
 
             case "/cheat/mod": //moderation tools
-                loadPage(true, false, (mainPanel) => {
+                await loadPage(true, false, (mainPanel) => {
                     createElement("a", mainPanel, {className:"heading", text:"moderate", href: "/cheat"});
                     let container = createElement("div", mainPanel, { className: "flex-column menu" });
                     if (config.modAsLists) {
@@ -65,22 +65,22 @@ async function render() {
                     createElement("a", container, {className:"button", text:"videos", href:"/cheat/mod/videos"});
                 });
                 break;
-            case "/cheat/mod/user": loadPage(false, true, openUserModOptions); break;
-            case "/cheat/mod/custom-ban": loadPage(false, true, openCustomBanPage); break;
-            case "/cheat/mod/queue": loadPage(true, true, openQueue); break;
-            case "/cheat/mod/queue/display_name": loadPage(true, true, openNameRequest); break;
-            case "/cheat/mod/queue/picture": loadPage(true, true, openPictureRequest); break;
-            case "/cheat/mod/queue/display_names": loadPage(true, true, openNameRequests); break;
-            case "/cheat/mod/queue/pictures": loadPage(true, true, openPictureRequests); break;
-            case "/cheat/mod/reports": loadPage(true, true, openReports); break;
-            case "/cheat/mod/report": loadPage(true, true, openReport); break;
-            case "/cheat/mod/spam": loadPage(true, true, openSpam); break;
-            case "/cheat/mod/spammer": loadPage(true, true, openSpamDetection); break;
-            case "/cheat/mod/videos": loadPage(true, true, openVideos); break;
-            case "/cheat/mod/video": loadPage(true, true, openVideo); break;
+            case "/cheat/mod/user": await loadPage(false, true, openUserModOptions); break;
+            case "/cheat/mod/custom-ban": await loadPage(false, true, openCustomBanPage); break;
+            case "/cheat/mod/queue": await loadPage(true, true, openQueue); break;
+            case "/cheat/mod/queue/display_name": await loadPage(true, true, openNameRequest); break;
+            case "/cheat/mod/queue/picture": await loadPage(true, true, openPictureRequest); break;
+            case "/cheat/mod/queue/display_names": await loadPage(true, true, openNameRequests); break;
+            case "/cheat/mod/queue/pictures": await loadPage(true, true, openPictureRequests); break;
+            case "/cheat/mod/reports": await loadPage(true, true, openReports); break;
+            case "/cheat/mod/report": await loadPage(true, true, openReport); break;
+            case "/cheat/mod/spam": await loadPage(true, true, openSpam); break;
+            case "/cheat/mod/spammer": await loadPage(true, true, openSpamDetection); break;
+            case "/cheat/mod/videos": await loadPage(true, true, openVideos); break;
+            case "/cheat/mod/video": await loadPage(true, true, openVideo); break;
 
 
-            default: loadPage(true, false, mainPanel => mainPanel.innerHTML = "not found :("); break;
+            default: await loadPage(true, false, mainPanel => mainPanel.innerHTML = "not found :("); break;
         }
     } catch (error) {
         console.error(error);
