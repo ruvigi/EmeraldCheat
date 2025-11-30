@@ -2,7 +2,7 @@
 // @name        EmeraldCheat
 // @namespace   http://tampermonkey.net/
 // @match       https://emeraldchat.com/*
-// @version     3.1.6.[filmer timestamp]
+// @version     3.1.7.[filmer timestamp]
 // @author      -
 // @run-at      document-end
 // @description Full UI replacement for EmeraldChat. Open: https://emeraldchat.com/cheat
