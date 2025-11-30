@@ -171,6 +171,7 @@ input::placeholder {
 
 .heading {
     font-size: 1.25rem;
+    min-width: 2rem;
     color: var(--accent);
 }
 
@@ -250,6 +251,7 @@ input::placeholder {
 
 .text-highlighted {
     color: var(--accent);
+    min-width: 1.5rem;
 }
 
 .text-red {
