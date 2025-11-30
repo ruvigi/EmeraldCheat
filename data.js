@@ -11,7 +11,7 @@ function setStorageJSON(key, obj) {
 
 function openDatabase() {
     return new Promise((resolve, reject) => {
-        let request = indexedDB.open("EmeraldCheat", 1);
+        let request = indexedDB.open("EmeraldCheat", 3);
         request.onupgradeneeded = event => {
             let db = event.target.result;
             for (let storeName of ["PictureDates"]) {
@@ -61,6 +61,58 @@ function getAllDatabaseJSON(storeName) {
     });
 }
 
+function clearDatabaseStore(storeName) {
+    return new Promise((resolve, reject) => {
+        let trans = database.transaction(storeName, "readwrite");
+        let store = trans.objectStore(storeName);
+        let request = store.clear();
+        request.onsuccess = () => resolve(true);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+function filterDatabaseObjects(storeName, condition) {
+    return new Promise((resolve, reject) => {
+        let trans = database.transaction(storeName, "readonly");
+        let store = trans.objectStore(storeName);
+        let request = store.openCursor();
+        let result = [];
+        request.onsuccess = (event) => {
+            let cursor = event.target.result;
+            if (cursor) {
+                if (condition(cursor.value)) {
+                    result.push(cursor.value);
+                }
+                cursor.continue();
+            } else {
+                resolve(result);
+            }
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+function countDatabaseObjects(storeName, condition) {
+    return new Promise((resolve, reject) => {
+        let trans = database.transaction(storeName, "readonly");
+        let store = trans.objectStore(storeName);
+        let request = store.openCursor();
+        let count = 0;
+        request.onsuccess = (event) => {
+            let cursor = event.target.result;
+            if (cursor) {
+                if (condition(cursor.value)) {
+                    count++;
+                }
+                cursor.continue();
+            } else {
+                resolve(count);
+            }
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
 function shuffleArray(array) {
     let currentIndex = array.length;
     while (currentIndex != 0) {
@@ -68,6 +120,17 @@ function shuffleArray(array) {
         currentIndex--;
         [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
+}
+
+function countArray(array, condition) {
+    let count = 0;
+    for (let item of array) {
+        if (condition(item)) {
+            count++;
+        }
+    }
+
+    return count;
 }
 
 function mergeAndShuffle(items1, items2) {
@@ -79,6 +142,19 @@ function mergeAndShuffle(items1, items2) {
     let items = Array.from(map.values());
     shuffleArray(items);
     return items;
+}
+
+function interestMatchesWords(interest, words) {
+    return words.some(p =>
+        interest.name.split(" ").includes(p) ||
+        interest.name === p.split("").join(" ") ||
+        interest.name === p.replace(" ", "") ||
+        interest.name === p
+    );
+}
+
+function anyInterestMatchesWords(user, words) {
+    return user.interests.some(interest => interestMatchesWords(interest, words));
 }
 
 function roleName(user) {

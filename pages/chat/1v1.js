@@ -31,7 +31,7 @@ async function open1v1(panel, userPanel) {
                                     language_filter: false,
                                     language_selected: "English",
                                     intimacy_filter: false,
-                                    intimacy_selected: false
+                                    intimacy_selected: "false"
                                 },
                                 id: null,
                                 queue: "text",

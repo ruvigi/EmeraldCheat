@@ -1,9 +1,33 @@
-//any tags that include any of these will be highlighted as they are ban-worthy
-const badInterestParts = ["snuff", "necro", "infant", "cest", "cp", "cheese pizza", "cheesepizza", "sixteen", "seventeen", "babysitting", "file", "twelve", "preteens", "highschool", "fifteen", "fourteen", "thirteen", "cub", "mlm", "alm", "mla", "shota", "pdo", "molest", "zoophilia", "jailbait", "cunny", "tween", "preteen", "underaged", "zoo", "pdf", "lxli", "ped", "pedo", "pedophile", "pedophilia", "pxd", "pxdo", "baby", "toddler", "newborn", "horse cock", "rape", "rxpe", "rapist", "minor", "minors", "underage", "map", "aam", "kid", "kids", "cartography", "beast", "beastiality", "knot", "dog knot", "loli", "lolita", "high school", "middle school", "elementary", "elementary school", "cousin", "uncle", "sibling", "siblings", "child", "children", "incest", "grandma", "grandmother", "grandpa", "grandfather", "family", "niece", "aunt", "daughter", "son", "groom", "groomer", "grooming", "groomed"];
-const susInterestParts = ["parent", "parents", "yung", "sitting", "forced", "noncon", "teenager", "creep", "creepy", "pervert", "session", "minecraft", "dad", "perv", "taboo", "yng", "young", "dog", "dogs", "horse", "horses", "vid", "vids", "trade", "trading", "mega", "link", "links", "little", "school", "mom", "mum", "mother", "father", "sis", "bro", "teen", "teens", "boy", "boys", "roblox", "fortnite", "brother", "sister", "robux"];
+const childWords = ["cheerleader", "gymnastics", "gymnast", "maps", "shxta", "pred", "shotacon", "lolicon", "teen", "teens", "mega", "link", "links", "yng", "young", "creep", "teenager", "infant", "cp", "cheese pizza", "cheesepizza", "sixteen", "seventeen", "twelve", "preteens", "fifteen", "fourteen", "thirteen", "cub", "mlm", "alm", "mla", "shota", "pdo", "molest", "jailbait", "cunny", "tween", "preteen", "underaged", "pdf", "lxli", "ped", "pedo", "pedophile", "pedophilia", "pxd", "pxdo", "toddler", "newborn", "minor", "minors", "underage", "map", "aam", "cartography", "loli", "lolita", "middle school", "elementary", "elementary school", "child", "children", "groomed"];
+const childWithSexualWords = ["roblox", "fortnite", "robux", "vid", "vids", "sitting", "babysitting", "file", "highschool", "high school", "groom", "groomer", "grooming", "creepy", "session", "minecraft", "kid", "kids", "yung"];
+const illegalWords = ["brother", "sister", "father", "snuff", "necro", "zoophilia", "rape", "rxpe", "rapist", "beastiality", "bestiality", "knot", "dog knot", "cousin", "uncle", "sibling", "siblings", "incest", "grandmother", "grandfather", "family", "niece", "aunt", "daughter", "son"];
+const illegalWithSexualWords = ["sis", "dog", "dogs", "horse", "horses", "parent", "parents", "zoo", "beast", "taboo"];
+const sexualWords = ["cumshot", "facial", "nipples", "cleavage", "paag", "thicc", "leggings", "booty", "ass", "panties", "size queen", "macromastia", "girth", "girthy", "diaper", "cuck", "diapered", "diapers", "abdl", "potty", "bedwetting", "bedwetter", "cumslut", "nolimits", "spanking", "spank", "choke", "choking", "obedient", "ftm", "mtf", "blackmail", "hypno", "hypnosis", "hypnotize", "smut", "voyeur", "blowjob", "bj", "nudism", "nudist", "cheating", "pregnant", "race play", "use me", "exhibitionist", "dominant", "humiliate", "humiliated", "degrading", "humiliation", "kink", "bdsm", "gang bang", "cuckold", "gooned", "ovulating", "nympho", "groping", "creampie", "foreplay", "condom", "fingering", "twink", "free use", "age play", "degrade", "degradation", "degraded", "ddlg", "femboy", "trans", "dom", "femdom", "dominatrix", "domme", "slave", "chastity", "doggy", "pegging", "petplay", "naughty", "submissive", "sub", "age gap", "gooning", "gooner", "wank", "joi", "hookup", "squirt", "butt", "buttslut", "virgin", "sugar baby", "hot", "cnc", "goonette", "pawg", "blacked", "anal", "threesome", "stepdad", "stepfather", "step sis", "step dad", "step bro", "hung", "fwb", "bimbo", "milf", "brainwashing", "brainwashed", "brainwash", "pervert", "perv", "perverted", "pervy", "bop", "slut", "whore", "furry", "roleplay", "rp", "gay", "bi", "lesbian", "dick", "moan", "flashing", "tits", "boobs", "cum", "orgasm", "orgasms", "wet", "snow bunny", "snowbunny", "glory hole", "gloryhole", "horny", "goon", "pussy", "daddy", "mommy", "breasts", "breeding", "bbc", "bwc", "jerk", "jerking", "bikini", "jizz"];
+
+async function analyze(user) {
+    let sexual = anyInterestMatchesWords(user, sexualWords);
+    let child = anyInterestMatchesWords(user, childWords) || (anyInterestMatchesWords(user, childWithSexualWords) && sexual);
+    let illegal = anyInterestMatchesWords(user, illegalWords) || (anyInterestMatchesWords(user, illegalWithSexualWords) && sexual);
+
+    let analysis = {
+        key: user.id,
+        sexual: sexual,
+        child: child,
+        illegal: illegal,
+        master: user.master,
+        mod: user.mod,
+        platinum: user.platinum,
+        gold: user.gold,
+        temp: user.temp || (new Date() - new Date(user.created_at) < 259200000 && !(user.gold || user.platinum)),
+        lastAnalyzed: new Date().toISOString()
+    };
+
+    return analysis;
+}
 
 //opens the user panel for the given user ID
 async function openUser(panel, userId) {
+    panel.innerHTML = "";
     userId ??= parseInt(query("id"));
     if (!userId) return;
     let userJson = await loadJSON(`/profile_json?id=${userId}`);
@@ -13,23 +37,28 @@ async function openUser(panel, userId) {
 
     await addUserHeader(panel, userJson, true);
 
+    let analysis = await analyze(user);
+
     if (currentUser.mod) {
         let quickBanContainer = createElement("div", panel, {className:"quick-bans"});
 
         let banOptions = [];
         if ((new Date() - new Date(user.created_at) < 259200000) && !user.platinum && !user.gold) {
-            banOptions.push({ name: "cp/csa", duration: ban3d.value, reason: banCSA.value });
-            banOptions.push({ name: "illegal", duration: ban3d.value, reason: banIllegal.value });
+            banOptions.push({ name: "cp/csa", duration: ban3d.value, reason: banCSA.value, suggested: analysis.child });
+            banOptions.push({ name: "illegal", duration: ban3d.value, reason: banIllegal.value, suggested: analysis.illegal });
         } else {
-            banOptions.push({ name: "any illegal", duration: ban10y.value, reason: banPerm.value });
+            banOptions.push({ name: "any illegal", duration: ban10y.value, reason: banPerm.value, suggested: analysis.child || analysis.illegal });
         }
         banOptions.push(...quickBans);
 
         for (let quickBan of banOptions) {
-            createElement("a", quickBanContainer, {className:"small-button", text:quickBan.name, onclick:async e => {
+            createElement("a", quickBanContainer, {className:"small-button" + (quickBan.suggested ? " suggestion" : ""), text:quickBan.name, onclick:async e => {
+                if (e.target.classList.contains("suggestion")) {
+                    e.target.classList.remove("suggestion");
+                }
                 if (e.target.classList.contains("confirm")) {
                     if (quickBan.duration >= ban10y.value) {
-                        navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\n`);
+                        navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\nInterests: ${user.interests.map(i => i.name).join(", ")}\n`);
                     }
                     e.target.classList.remove("confirm");
                     e.target.innerHTML = "banning...";
@@ -51,10 +80,12 @@ async function openUser(panel, userId) {
     if (user.interests.length > 0) {
         let interestContainer = createElement("div", panel, {className:"interests"});
         for (let interest of user.interests) {
-            if (badInterestParts.some(p => interest.name.split(" ").includes(p) || interest.name === p.split("").join(" ") || interest.name === p)) {
+            if (interestMatchesWords(interest, childWords) || interestMatchesWords(interest, illegalWords)) {
                 createElement("span", interestContainer, {text:interest.name, className: "text-red"});
-            } else if (susInterestParts.some(p => interest.name.split(" ").includes(p) || interest.name === p.split("").join(" ") || interest.name === p)) {
+            } else if (interestMatchesWords(interest, childWithSexualWords) || interestMatchesWords(interest, illegalWithSexualWords)) {
                 createElement("span", interestContainer, {text:interest.name, className: "text-gold"});
+            } else if (interestMatchesWords(interest, sexualWords)) {
+                createElement("span", interestContainer, {text:interest.name, className: "text-highlighted"});
             } else {
                 createElement("span", interestContainer, {text:interest.name});
             }

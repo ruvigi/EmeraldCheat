@@ -18,14 +18,6 @@ async function openSettings(panel, userPanel) {
             e.target.innerHTML = config.modAsLists ? "on" : "off";
         }});
 
-        let hideFromGroupsRow = createElement("div", panel, {className:"flex-row"});
-        createElement("span", hideFromGroupsRow, {text: "hide from groups"});
-        createElement("a", hideFromGroupsRow, {text: config.hideFromGroups ? "on" : "off", onclick: e => {
-            config.hideFromGroups = !config.hideFromGroups;
-            saveConfig();
-            e.target.innerHTML = config.hideFromGroups ? "on" : "off";
-        }});
-
         let doNotPreloadVideosRow = createElement("div", panel, {className:"flex-row"});
         createElement("span", doNotPreloadVideosRow, {text: "preload videos"});
         createElement("a", doNotPreloadVideosRow, {text: !config.doNotPreloadVideos ? "on" : "off", onclick: e => {
@@ -34,6 +26,14 @@ async function openSettings(panel, userPanel) {
             e.target.innerHTML = !config.doNotPreloadVideos ? "on" : "off";
         }});
     }
+
+    let hideFromGroupsRow = createElement("div", panel, {className:"flex-row"});
+    createElement("span", hideFromGroupsRow, {text: "hide from groups"});
+    createElement("a", hideFromGroupsRow, {text: config.hideFromGroups ? "on" : "off", onclick: e => {
+        config.hideFromGroups = !config.hideFromGroups;
+        saveConfig();
+        e.target.innerHTML = config.hideFromGroups ? "on" : "off";
+    }});
 
     let doNotPreloadProfilePicturesRow = createElement("div", panel, {className:"flex-row"});
     createElement("span", doNotPreloadProfilePicturesRow, {text: "preload pfps"});

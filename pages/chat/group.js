@@ -103,7 +103,7 @@ async function openGroup(panel, userPanel) {
         users.set(user.id, { count: 1, element: userRow });
     }
 
-    let hide = config.hideFromGroups && currentUser.mod;
+    let hide = config.hideFromGroups;
 
     if (!hide) {
         addUser(currentUser);

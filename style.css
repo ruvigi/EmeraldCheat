@@ -6,6 +6,7 @@
     --placeholder: #615f6b;
     --accent: #b16bc8;
     --red: #b05050;
+    --green: #50b050;
     --gold: #cec03f;
     --failure-layer: #80000038;
 
@@ -255,6 +256,10 @@ input::placeholder {
     color: var(--red);
 }
 
+.text-green {
+    color: var(--green);
+}
+
 .text-gold {
     color: var(--gold);
 }
@@ -389,6 +394,21 @@ div.image:not(.placeholder) {
     100% {
         box-shadow: 0 0 0.125rem 0 var(--red);
         color: var(--red);
+    }
+}
+
+.suggestion {
+    animation: suggestion-animation 250ms infinite alternate ease-in;
+}
+
+@keyframes suggestion-animation {
+    0% {
+        box-shadow: 0 0 0.125rem 0 var(--text-inactive);
+        color: var(--text-inactive);
+    }
+    100% {
+        box-shadow: 0 0 0.125rem 0 var(--green);
+        color: var(--green);
     }
 }
 

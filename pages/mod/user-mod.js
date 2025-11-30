@@ -12,7 +12,7 @@ async function openUserModOptions(panel) {
     createElement("a", panel, {className:"button", text:"shadow ban", onclick:async e => { e.target.innerHTML = "banning..."; await sendActionRequest(`/shadow_ban?id=${user.id}`, "GET"); window.history.back(); } });
     createElement("a", panel, {className:"button", text:"remove pfp", onclick:async e => { e.target.innerHTML = "removing..."; await sendActionRequest(`/remove_profile_pic?id=${user.id}`, "GET"); window.history.back(); } });
     createElement("a", panel, {className:"button", text:"unban", onclick:async e => { e.target.innerHTML = "pardoning..."; await sendActionRequest(`/unban?id=${user.id}`, "GET"); window.history.back(); } });
-    createElement("a", panel, {className:"button", text:"copy identifier", onclick:e => {navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\n`); e.target.innerHTML = 'copied :)'}});
+    createElement("a", panel, {className:"button", text:"copy identifier", onclick:e => {navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\nInterests: ${user.interests.map(i => i.name).join(", ")}\n`); e.target.innerHTML = 'copied :)'}});
     createElement("a", panel, {text:user.id, href:`/cheat/people/user?id=${user.id}`, style:"color: var(--text-inactive)"});
 }
 
