@@ -47,13 +47,13 @@ async function openDirectChat(panel) {
         }
 
         if (message.picture) {
-            createElement("img", lastColumn, { className: "image", style: "width: 9rem; height: 9rem;", src: message.picture });
+            createElement("img", lastColumn, { className: "image censored", style: "width: 9rem; height: 9rem;", src: message.picture });
         }
 
         for (let line of message.messages) {
             let imageUrl = decodeURIComponent(line).split(" ").find(word => word.startsWith("i.imgur.com/") && !word.includes("@"));
             if (imageUrl) {
-                createElement("img", lastColumn, { className: "image", style: "width: 9rem; height: 9rem;", src: `https://${imageUrl}` });
+                createElement("img", lastColumn, { className: "image censored", style: "width: 9rem; height: 9rem;", src: `https://${imageUrl}` });
             } else {
                 createElement("span", lastColumn, { text: line });
             }

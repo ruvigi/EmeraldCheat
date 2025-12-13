@@ -283,6 +283,11 @@ input::placeholder {
     border-radius: 0.5rem;
 }
 
+.censored {
+    filter: blur(1rem);
+    clip-path: inset(0 round 0.5rem);
+}
+
 .fullscreen {
     position: absolute;
     object-fit: contain !important;
