@@ -87,7 +87,7 @@ async function open1v1Channel(panel, userPanel, roomId) {
         }
 
         for (let line of message.messages) {
-            let imageUrl = decodeURIComponent(line).split(" ").find(word => word.startsWith("i.imgur.com/") && !word.includes("@"));
+            let imageUrl = tryGetImageUrl(line);
             if (imageUrl) {
                 createElement("img", lastColumn, { className: "image censored", style: "width: 9rem; height: 9rem;", src: `https://${imageUrl}` });
             } else {

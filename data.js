@@ -220,3 +220,11 @@ function userThumbnail(user) {
 function userPicture(user) {
     return user.display_picture ?? user.thumbnail_picture;
 }
+
+function tryGetImageUrl(line) {
+    try {
+        return decodeURIComponent(line).split(" ").find(word => word.startsWith("i.imgur.com/") && !word.includes("@"));
+    } catch {
+        return null;
+    }
+}
