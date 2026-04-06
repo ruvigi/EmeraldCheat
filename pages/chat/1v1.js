@@ -30,7 +30,7 @@ async function open1v1(panel, userPanel) {
                                     countries_selected: [],
                                     language_filter: false,
                                     language_selected: "English",
-                                    intimacy_filter: false,
+                                    intimacy_filter: true,
                                     intimacy_selected: "false"
                                 },
                                 id: null,
