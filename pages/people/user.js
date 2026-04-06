@@ -58,7 +58,7 @@ async function openUser(panel, userId) {
                 }
                 if (e.target.classList.contains("confirm")) {
                     if (quickBan.duration >= ban10y.value) {
-                        navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\nInterests: ${user.interests.map(i => i.name).join(", ")}\n`);
+                        navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\nInterests: ${(user.interests ?? []).map(i => i.name).join(", ")}\n`);
                     }
                     e.target.classList.remove("confirm");
                     e.target.innerHTML = "banning...";
@@ -77,7 +77,7 @@ async function openUser(panel, userId) {
     if (user.bio !== "This user has not filled in their profile yet")
         createElement("span", panel, {className:"text-centered", text:user.bio});
 
-    if (user.interests.length > 0) {
+    if (user.interests && user.interests.length > 0) {
         let interestContainer = createElement("div", panel, {className:"interests"});
         for (let interest of user.interests) {
             if (interestMatchesWords(interest, childWords) || interestMatchesWords(interest, illegalWords)) {
