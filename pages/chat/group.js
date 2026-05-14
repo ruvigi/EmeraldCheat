@@ -146,6 +146,10 @@ async function openGroup(panel, userPanel) {
         sendToMessageSock = await openSocket(
             async messageJson => {
                 if (!messageContainer.isConnected) {
+                    let identifier = JSON.parse(messageJson.identifier);
+                    if (identifier && identifier.channel === "RoomChannel") {
+                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });
+                    }
                     sendToMessageSock("bye");
                     return;
                 }

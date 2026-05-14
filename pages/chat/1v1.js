@@ -1,58 +1,12 @@
 async function open1v1(panel, userPanel) {
     let roomId = query("id");
-    if (roomId) {
-        return await open1v1Channel(panel, userPanel, roomId);
-    }
-
-    let sendToMessageSock;
-    return async () => {
-        sendToMessageSock = await openSocket(
-            async messageJson => {
-                if (!panel.isConnected) {
-                    sendToMessageSock("bye");
-                    return;
-                }
-
-                if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"MatchChannel\"}`) {
-                    if (messageJson.type === "confirm_subscription") {
-                        sendToMessageSock({
-                            command: "message",
-                            identifier: "{\"channel\":\"MatchChannel\"}",
-                            data: JSON.stringify({
-                                interest_wait: false,
-                                options: {
-                                    karma_filter: false,
-                                    min_karma: 3,
-                                    filter_temps: true,
-                                    gender_filter: false,
-                                    gender_selected: "f",
-                                    country_filter: false,
-                                    countries_selected: [],
-                                    language_filter: false,
-                                    language_selected: "English",
-                                    intimacy_filter: true,
-                                    intimacy_selected: "false"
-                                },
-                                id: null,
-                                queue: "text",
-                                action: "match"
-                            })
-                        });
-                    } else if (messageJson.message && messageJson.message.room_id) {
-                        internalReplaceState(`/cheat/chat/1v1?id=${messageJson.message.room_id}&u=${messageJson.message.room_data.partner.id}`);
-                    }
-                }
-            },
-            send => {
-                send({ command: "subscribe", identifier: JSON.stringify({ channel: "MatchChannel" }) });
-            }
-        );
-    }
-}
-
-async function open1v1Channel(panel, userPanel, roomId) {
     let userId = parseInt(query("u"));
-    await openUser(userPanel, userId);
+    if (userId) {
+        await openUser(userPanel, userId);
+    }
+
+    let disconnected = false;
+    let partnerEverLost = false;
 
     createElement("a", panel, { className: "heading", text: "1v1", href: "/cheat/chat/1v1" });
 
@@ -93,6 +47,15 @@ async function open1v1Channel(panel, userPanel, roomId) {
             } else {
                 createElement("span", lastColumn, { text: line });
             }
+        }
+    }
+
+    async function addSystemLog(text) {
+        lastUserId = null;
+        lastColumn = null;
+        createElement("span", messageContainer, { text: text });
+        if (atBottom) {
+            scrollToBottom();
         }
     }
 
@@ -175,7 +138,6 @@ async function open1v1Channel(panel, userPanel, roomId) {
     onKeyDown = handleKeyDown;
     input.addEventListener("keydown", handleKeyDown);
 
-
     return async () => {
         scrollToBottom();
         input.focus();
@@ -191,11 +153,67 @@ async function open1v1Channel(panel, userPanel, roomId) {
         sendToMessageSock = await openSocket(
             async messageJson => {
                 if (!messageContainer.isConnected) {
+                    let identifier = JSON.parse(messageJson.identifier);
+                    if (identifier && identifier.channel === "RoomChannel") {
+                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });
+                    }
                     sendToMessageSock("bye");
                     return;
                 }
 
-                if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":\"${roomId}\"}` && messageJson.message) {
+                if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"MatchChannel\"}`) {
+                    if (messageJson.type === "confirm_subscription") {
+                        sendToMessageSock({
+                            command: "message",
+                            identifier: "{\"channel\":\"MatchChannel\"}",
+                            data: JSON.stringify({
+                                interest_wait: false,
+                                options: {
+                                    karma_filter: false,
+                                    min_karma: 3,
+                                    filter_temps: true,
+                                    gender_filter: false,
+                                    gender_selected: "f",
+                                    country_filter: false,
+                                    countries_selected: [],
+                                    language_filter: false,
+                                    language_selected: "English",
+                                    intimacy_filter: true,
+                                    intimacy_selected: "false"
+                                },
+                                id: null,
+                                queue: "text",
+                                action: "match"
+                            })
+                        });
+                    } else if (messageJson.message && messageJson.message.room_id) {
+                        roomId = messageJson.message.room_id;
+                        userId = messageJson.message.room_data.partner.id;
+                        window.history.replaceState({}, "", `/cheat/chat/1v1?id=${roomId}&u=${userId}`);
+                        panelData[0].url = location.href;
+                        sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
+                        openUser(userPanel, userId);
+                        addSystemLog(`${messageJson.message.room_data.partner.display_name} matched`);
+                    } else if (messageJson.message && messageJson.message.disconnect) {
+                        disconnected = true;
+                        if (messageJson.message.user && messageJson.message.user.id !== currentUser.id) {
+                            let eventUserId = messageJson.message.user.id;
+                            for (let [typingUserId, typingUserTimeout] in typingUsers.entries()) {
+                                if (typingUserTimeout) {
+                                    clearTimeout(typingUserTimeout);
+                                }
+                            }
+                            typingUsers.clear();
+                            input.classList.remove("typing");
+                        }
+                        let lastMessage = messageContainer.lastElementChild;
+                        if (lastMessage?.innerHTML === "partner is lost") {
+                            lastMessage.innerHTML = "partner left";
+                        } else {
+                            addSystemLog("partner left");
+                        }
+                    }
+                } else if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":\"${roomId}\"}` && messageJson.message) {
                     if (messageJson.message.messages) {
                         await addMessage(messageJson.message);
                         if (atBottom) {
@@ -228,6 +246,10 @@ async function open1v1Channel(panel, userPanel, roomId) {
                                 }
                             }, 10000));
                         }
+                    } else if (messageJson.message.user_connected && messageJson.message.user) {
+                        if (messageJson.message.user.id !== currentUser.id && partnerEverLost) {
+                            addSystemLog("partner is back");
+                        }
                     } else if (messageJson.message.user_disconnected) {
                         if (messageJson.message.user && messageJson.message.user.id !== currentUser.id) {
                             let eventUserId = messageJson.message.user.id;
@@ -240,14 +262,29 @@ async function open1v1Channel(panel, userPanel, roomId) {
                                 input.classList.remove("typing");
                             }
                         }
-                        createElement("a", messageContainer, { text: "next bitch!", className: "button", href: "/cheat/chat/1v1", style: "width: fit-content; margin: 0.25rem;" });
-                        scrollToBottom();
+                        if (!disconnected) {
+                            partnerEverLost = true;
+                            addSystemLog("partner is lost");
+                        }
                     }
                 }
             },
             send => {
-                send({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
+                if (roomId) {
+                    send({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
+                } else {
+                    send({ command: "subscribe", identifier: JSON.stringify({ channel: "MatchChannel" }) });
+                }
             }
         );
     }
+}
+
+async function open1v1Channel(panel, userPanel, roomId) {
+    let userId = parseInt(query("u"));
+    await openUser(userPanel, userId);
+
+    createElement("a", panel, { className: "heading", text: "1v1", href: "/cheat/chat/1v1" });
+
+    createElement("span", panel, { text: "disconnected :(" });
 }
