@@ -1,3 +1,5 @@
+let lastDirectRoomId;
+
 async function openDirectChat(panel) {
     let userId = parseInt(query("id"));
     if (!userId) return;
@@ -146,11 +148,11 @@ async function openDirectChat(panel) {
         sendToMessageSock = await openSocket(
             async messageJson => {
                 if (!messageContainer.isConnected) {
-                    let identifier = JSON.parse(messageJson.identifier);
-                    if (identifier && identifier.channel === "RoomChannel") {
-                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });
-                    }
-                    sendToMessageSock("bye");
+                    try {
+                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: userJson.room_id }) });
+                        sendToMessageSock("bye");
+                    } catch (error) {}
+                    sendToDirectSocket = null;
                     return;
                 }
 
@@ -194,5 +196,7 @@ async function openDirectChat(panel) {
                 send({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: userJson.room_id }) });
             }
         );
+        lastDirectRoomId = userJson.room_id;
+        sendToDirectSocket = sendToMessageSock;
     }
 }

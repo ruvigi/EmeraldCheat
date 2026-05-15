@@ -153,9 +153,8 @@ async function open1v1(panel, userPanel) {
         sendToMessageSock = await openSocket(
             async messageJson => {
                 if (!messageContainer.isConnected) {
-                    let identifier = JSON.parse(messageJson.identifier);
-                    if (identifier && identifier.channel === "RoomChannel") {
-                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });
+                    if (roomId) {
+                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                     }
                     sendToMessageSock("bye");
                     return;

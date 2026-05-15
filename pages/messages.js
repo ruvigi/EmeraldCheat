@@ -1,4 +1,16 @@
 async function openMessages(panel) {
+    if (sendToDirectSocket && lastDirectRoomId) {
+        try {
+            sendToDirectSocket({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: lastDirectRoomId }) });
+            sendToDirectSocket("bye");
+        } catch (error) {}
+        sendToDirectSocket = null;
+    }
+    while (sendToDirectSocket) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+
     if (msgsButton.classList.contains("text-gold")) {
         msgsButton.classList.remove("text-gold");
     }

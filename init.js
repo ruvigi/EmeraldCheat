@@ -1,6 +1,7 @@
 let config = getStorageJSON("cheatConfig") ?? {};
 
 let sendToWebSocket;
+let sendToDirectSocket;
 
 //startup - either inject a button or load the cheat
 if (window.location.pathname == "/cheat" || window.location.pathname.startsWith("/cheat/")) {
