@@ -1,5 +1,15 @@
 let database;
 
+const timeUnits = [
+    ["y", 31557600],
+    ["mo", 2630016],
+    ["w", 604800],
+    ["d", 86400],
+    ["h", 3600],
+    ["min", 60],
+    ["s", 1]
+];
+
 function getStorageJSON(key) {
     let value = localStorage.getItem(key);
     return value ? JSON.parse(value) : null;
@@ -167,6 +177,7 @@ function before(string, character) {
 }
 
 function timeSince(date) {
+    console.log(timeString(2600000));
     let diff = Math.floor((new Date() - new Date(date)) / 1000);
 
     if (new Date(date).valueOf() === 0) return "long ago";
@@ -176,23 +187,14 @@ function timeSince(date) {
 }
 
 function timeString(diff) {
-    if (diff < 60) return `${diff}s`;
+    for (let [text, seconds] of timeUnits) {
+        let value = Math.floor(diff / seconds);
+        if (value >= 1) {
+            return `${value}${text}`;
+        }
+    }
 
-    diff = Math.floor(diff / 60);
-    if (diff < 60) return `${diff}min`;
-
-    diff = Math.floor(diff / 60);
-    if (diff < 24) return `${diff}h`;
-
-    diff = Math.floor(diff / 24);
-    if (diff < 7) return `${diff}d`;
-    if (diff < 30) return `${Math.floor(diff / 7)}w`;
-
-    diff = Math.floor(diff / 30);
-    if (diff < 12) return `${diff}mo`;
-
-    diff = Math.floor(diff / 12);
-    return `${diff}y`;
+    return "now";
 }
 
 function translateGender(genderId) {
