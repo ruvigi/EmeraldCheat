@@ -183,14 +183,14 @@ function timeSince(date) {
     if (new Date(date).valueOf() === 0) return "long ago";
 
     if (diff === 0) return "now";
-    return timeString(diff) + " ago";
+    return timeString(diff);
 }
 
 function timeString(diff) {
     for (let [text, seconds] of timeUnits) {
         let value = Math.floor(diff / seconds);
         if (value >= 1) {
-            return `${value}${text}`;
+            return `${value}${text} ago`;
         }
     }
 
