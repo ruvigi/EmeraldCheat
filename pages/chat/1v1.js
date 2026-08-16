@@ -166,7 +166,7 @@ async function open1v1(panel, userPanel) {
                             command: "message",
                             identifier: "{\"channel\":\"MatchChannel\"}",
                             data: JSON.stringify({
-                                interest_wait: false,
+                                interest_wait: config.waitForInterests === true,
                                 options: {
                                     karma_filter: false,
                                     min_karma: 3,
@@ -178,7 +178,7 @@ async function open1v1(panel, userPanel) {
                                     language_filter: false,
                                     language_selected: "English",
                                     intimacy_filter: true,
-                                    intimacy_selected: "false"
+                                    intimacy_selected: false
                                 },
                                 id: null,
                                 queue: "text",

@@ -24,6 +24,7 @@ async function render() {
                 break;
             case "/cheat/settings": await loadPage(true, true, openSettings); break;
             case "/cheat/settings/quick-bans": await loadPage(true, true, openQuickBanSettings); break;
+            case "/cheat/settings/interests": await loadPage(true, true, openInterestEditor); break;
             case "/cheat/notifications": await loadPage(false, true, openNotifications); break;
             case "/cheat/messages": await loadPage(false, true, openMessages); break;
 
