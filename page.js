@@ -54,19 +54,19 @@ function createElement(type, parent, {className, style, onclick, href, text, src
     return element;
 }
 
-function internalPushState(url) {
+async function internalPushState(url) {
     window.history.pushState({}, "", url);
-    render();
+    await render();
 }
 
-function internalReplaceState(url) {
+async function internalReplaceState(url) {
     window.history.replaceState({}, "", url);
-    render();
+    await render();
 }
 
-function internalReloadMain() {
+async function internalReloadMain() {
     resetUserPanel();
-    internalReplaceState(panelData[0].url);
+    await internalReplaceState(panelData[0].url);
 }
 
 function callOnKeyDown(e) {
