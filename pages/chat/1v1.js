@@ -177,7 +177,7 @@ async function open1v1(panel, userPanel) {
                                     countries_selected: [],
                                     language_filter: false,
                                     language_selected: "English",
-                                    intimacy_filter: true,
+                                    intimacy_filter: false,
                                     intimacy_selected: false
                                 },
                                 id: null,
@@ -186,16 +186,26 @@ async function open1v1(panel, userPanel) {
                             })
                         });
                     } else if (messageJson.message && messageJson.message.room_id) {
+                        let partner = messageJson.message.room_data.partner;
                         roomId = messageJson.message.room_id;
-                        userId = messageJson.message.room_data.partner.id;
+                        userId = partner.id;
                         window.history.replaceState({}, "", `/cheat/chat/1v1?id=${roomId}&u=${userId}`);
                         panelData[0].url = location.href;
                         sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                         openUser(userPanel, userId);
-                        addSystemLog(`${messageJson.message.room_data.partner.display_name} matched`);
-                        let sharedInterests = messageJson.message.room_data.partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
-                        if (sharedInterests.length > 0) {
-                            addSystemLog(`shared interests: ${sharedInterests.map(interest => interest.name).join(", ")}`);
+                        addSystemLog(`${partner.display_name} matched`);
+                        if (partner.location) {
+                            addSystemLog(`location: ${partner.location.toLowerCase()}`);
+                        }
+                        if (partner.language) {
+                            addSystemLog(`language: ${partner.language.toLowerCase()}`);
+                        }
+                        if (partner.interests && partner.interests.length > 0) {
+                            addSystemLog(`interests: ${partner.interests.map(interest => interest.name).join(", ")}`);
+                            let sharedInterests = partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
+                            if (sharedInterests.length > 0) {
+                                addSystemLog(`shared interests: ${sharedInterests.map(interest => interest.name).join(", ")}`);
+                            }
                         }
                     } else if (messageJson.message && messageJson.message.disconnect) {
                         disconnected = true;
