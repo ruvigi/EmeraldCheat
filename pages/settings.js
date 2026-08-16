@@ -63,8 +63,6 @@ async function openSettings(panel, userPanel) {
         e.target.innerHTML = "cleared pfps :)"
     }});
 
-    createElement("a", panel, { className: "small-button", text: "search for updates (beta)", href: "https://undateable.net/files/@asya/emeraldcheat-beta.user.js" });
-
     createElement("a", panel, { className: "small-button", text: "search for updates (local)", href: "http://localhost:4731/emeraldcheat.user.js" });
 
     createElement("a", panel, { className: "button text-gold", text: "search for updates", href: "https://undateable.net/files/@asya/emeraldcheat.user.js" });
