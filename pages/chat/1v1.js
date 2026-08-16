@@ -193,6 +193,10 @@ async function open1v1(panel, userPanel) {
                         sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                         openUser(userPanel, userId);
                         addSystemLog(`${messageJson.message.room_data.partner.display_name} matched`);
+                        let sharedInterests = messageJson.message.room_data.partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
+                        if (sharedInterests.length > 0) {
+                            addSystemLog(`shared interests: ${sharedInterests.map(interest => interest.name).join(", ")}`);
+                        }
                     } else if (messageJson.message && messageJson.message.disconnect) {
                         disconnected = true;
                         if (messageJson.message.user && messageJson.message.user.id !== currentUser.id) {

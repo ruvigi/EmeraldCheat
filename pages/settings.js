@@ -114,6 +114,8 @@ function openInterestEditor(panel, userPanel) {
             nameInput.focus();
         }});
     }
+
+    return () => nameInput.focus();
 }
 
 function openQuickBanSettings(panel, userPanel) {

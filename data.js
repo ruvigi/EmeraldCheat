@@ -177,7 +177,6 @@ function before(string, character) {
 }
 
 function timeSince(date) {
-    console.log(timeString(2600000));
     let diff = Math.floor((new Date() - new Date(date)) / 1000);
 
     if (new Date(date).valueOf() === 0) return "long ago";
