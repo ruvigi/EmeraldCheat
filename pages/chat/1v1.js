@@ -273,6 +273,7 @@ async function open1v1(panel, userPanel) {
                     send({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                 } else {
                     send({ command: "subscribe", identifier: JSON.stringify({ channel: "MatchChannel" }) });
+                    addSystemLog("searching...");
                 }
             }
         );
