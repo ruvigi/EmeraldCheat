@@ -6,7 +6,7 @@ let sendToDirectSocket;
 //startup - either inject a button or load the cheat
 if (window.location.pathname == "/cheat" || window.location.pathname.startsWith("/cheat/")) {
     init();
-} else if (window.location.pathname === "/app") {
+} else if (window.location.pathname === "/old/app") {
     window.addEventListener("load", inject, false);
 }
 

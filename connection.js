@@ -5,6 +5,7 @@ let csrf;
 let cableUrl;
 
 async function loadJSON(url, noAlerts) {
+    url = "/old" + url;
     try {
         let response = await fetch(url);
         while (response.status === 429 || response.status === 503) {
@@ -29,6 +30,7 @@ async function loadJSON(url, noAlerts) {
 }
 
 async function sendActionRequest(url, method, ignoreResponse) {
+    url = "/old" + url;
     try {
         let response = await fetch(url, {method: method, headers:{"x-csrf-token":csrf}});
         if (response.status === 422) {
@@ -151,7 +153,7 @@ async function toDataURL(blob) {
 
 async function stealFromApp() {
     try {
-        let response = await fetch("/app", { method:"GET", headers:{"Accept":"text/html"}, credentials:"include"});
+        let response = await fetch("/old/app", { method:"GET", headers:{"Accept":"text/html"}, credentials:"include"});
         if (!response.ok) {
             alert("failed to get csrf or sock :(");
             return;
