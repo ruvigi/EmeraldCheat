@@ -19,10 +19,9 @@ async function openGroups(panel) {
 async function openGroup(panel, userPanel) {
     let groupId = parseInt(query("id"));
     if (!groupId) return;
-    let group = await loadJSON(`/channel_json?id=${groupId}`);
-    if (!group) return;
+    let group = await loadJSON(`/channel_json?id=${groupId}`, true);
 
-    createElement("a", panel, { className: "heading", text: group.channel.name, href: "/cheat/chat/groups" });
+    createElement("a", panel, { className: "heading", text: group?.channel?.name ?? "custom group", href: "/cheat/chat/groups" });
 
     let messageContainer = createElement("div", panel, { className: "flex-grow-1 fill-width flex-column", style: "overflow: hidden auto;" });
     createElement("div", messageContainer, { style: "flex: 1 1 auto;" });
@@ -63,8 +62,10 @@ async function openGroup(panel, userPanel) {
         }
     }
 
-    for (let message of group.messages) {
-        await addMessage(message);
+    if (group) {
+        for (let message of group.messages) {
+            await addMessage(message);
+        }
     }
 
     let sendToMessageSock;
@@ -109,9 +110,11 @@ async function openGroup(panel, userPanel) {
         addUser(currentUser);
     }
 
-    for (let user of group.members) {
-        if (user) {
-            addUser(user);
+    if (group) {
+        for (let user of group.members) {
+            if (user) {
+                addUser(user);
+            }
         }
     }
 
