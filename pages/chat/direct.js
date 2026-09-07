@@ -141,21 +141,17 @@ async function openDirectChat(panel) {
         connectedCheckInterval = setInterval(() => {
             if (!panel.isConnected) {
                 window.removeEventListener("resize", onResize);
+                try {
+                    sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: userJson.room_id }) });
+                    sendToMessageSock("bye");
+                } catch (error) {}
+                sendToDirectSocket = null;
                 clearInterval(connectedCheckInterval);
             }
-        }, 1000);
+        }, 100);
 
         sendToMessageSock = await openSocket(
             async messageJson => {
-                if (!messageContainer.isConnected) {
-                    try {
-                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: userJson.room_id }) });
-                        sendToMessageSock("bye");
-                    } catch (error) {}
-                    sendToDirectSocket = null;
-                    return;
-                }
-
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":${userJson.room_id}}` && messageJson.message) {
                     if (messageJson.message.messages) {
                         await addMessage(messageJson.message);

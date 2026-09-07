@@ -244,8 +244,10 @@ async function openSocket(onMessage, onConnect) {
     function send(message) {
         if (sock && sock.readyState === WebSocket.OPEN) {
             if (message === "bye") {
-                close();
-                console.log(`${sockId} sock disconnected`);
+                setTimeout(() => {
+                    close();
+                    console.log(`${sockId} sock disconnected`);
+                }, 10000);
             } else {
                 sock.send(JSON.stringify(message));
             }

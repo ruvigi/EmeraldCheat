@@ -146,20 +146,19 @@ async function open1v1(panel, userPanel) {
         connectedCheckInterval = setInterval(() => {
             if (!panel.isConnected) {
                 window.removeEventListener("resize", onResize);
+                if (roomId) {
+                    sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
+                    sendToMessageSock({ command: "message", identifier: JSON.stringify({ channel: "MatchChannel" }), data: JSON.stringify({ id: roomId, queue: "text", action: "disconnect" }) });
+                } else {
+                    sendToMessageSock({ command: "message", identifier: JSON.stringify({ channel: "MatchChannel" }), data: JSON.stringify({ id: null, queue: "text", action: "disconnect" }) });
+                }
+                sendToMessageSock("bye");
                 clearInterval(connectedCheckInterval);
             }
-        }, 1000);
+        }, 100);
 
         sendToMessageSock = await openSocket(
             async messageJson => {
-                if (!messageContainer.isConnected) {
-                    if (roomId) {
-                        sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
-                    }
-                    sendToMessageSock("bye");
-                    return;
-                }
-
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"MatchChannel\"}`) {
                     if (messageJson.type === "confirm_subscription") {
                         sendToMessageSock({

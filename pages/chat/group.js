@@ -142,18 +142,14 @@ async function openGroup(panel, userPanel) {
         connectedCheckInterval = setInterval(() => {
             if (!panel.isConnected) {
                 window.removeEventListener("resize", onResize);
+                sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: `channel${groupId}` }) });
+                sendToMessageSock("bye");
                 clearInterval(connectedCheckInterval);
             }
-        }, 1000);
+        }, 100);
 
         sendToMessageSock = await openSocket(
             async messageJson => {
-                if (!messageContainer.isConnected) {
-                    sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: `channel${groupId}` }) });
-                    sendToMessageSock("bye");
-                    return;
-                }
-
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":\"channel${groupId}\"}` && messageJson.message) {
                     if (messageJson.message.messages) {
                         await addMessage(messageJson.message);
