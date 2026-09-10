@@ -177,6 +177,7 @@ async function openSocket(onMessage, onConnect) {
     let sock;
     let reconnectTimeout;
     let everSuccessful = false;
+    let closeRequested = false;
 
     function close() {
         if (sock) {
@@ -245,9 +246,18 @@ async function openSocket(onMessage, onConnect) {
         if (sock && sock.readyState === WebSocket.OPEN) {
             if (message === "bye") {
                 setTimeout(() => {
+                    if (!closeRequested) {
+                        closeRequested = true;
+                        close();
+                        console.log(`${sockId} sock disconnected`);
+                    }
+                }, 5000);
+            } else if (message === "bye now") {
+                if (!closeRequested) {
+                    closeRequested = true;
                     close();
-                    console.log(`${sockId} sock disconnected`);
-                }, 10000);
+                    console.log(`${sockId} sock disconnected quickly`);
+                }
             } else {
                 sock.send(JSON.stringify(message));
             }

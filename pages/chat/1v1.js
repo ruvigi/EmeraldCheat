@@ -1,3 +1,5 @@
+let matchStillConnected = false;
+
 async function open1v1(panel, userPanel) {
     let roomId = query("id");
     let userId = parseInt(query("u"));
@@ -7,6 +9,7 @@ async function open1v1(panel, userPanel) {
 
     let disconnected = false;
     let partnerEverLost = false;
+    let disconnectRequested = false;
 
     createElement("a", panel, { className: "heading", text: "1v1", href: "/cheat/chat/1v1" });
 
@@ -146,12 +149,14 @@ async function open1v1(panel, userPanel) {
         connectedCheckInterval = setInterval(() => {
             if (!panel.isConnected) {
                 window.removeEventListener("resize", onResize);
+                disconnectRequested = true;
                 if (roomId) {
                     sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                     sendToMessageSock({ command: "message", identifier: JSON.stringify({ channel: "MatchChannel" }), data: JSON.stringify({ id: roomId, queue: "text", action: "disconnect" }) });
                 } else {
                     sendToMessageSock({ command: "message", identifier: JSON.stringify({ channel: "MatchChannel" }), data: JSON.stringify({ id: null, queue: "text", action: "disconnect" }) });
                 }
+                sendToMessageSock({ command: "unsubscribe", identifier: JSON.stringify({ channel: "MatchChannel" }) });
                 sendToMessageSock("bye");
                 clearInterval(connectedCheckInterval);
             }
@@ -185,44 +190,56 @@ async function open1v1(panel, userPanel) {
                             })
                         });
                     } else if (messageJson.message && messageJson.message.room_id) {
-                        let partner = messageJson.message.room_data.partner;
-                        roomId = messageJson.message.room_id;
-                        userId = partner.id;
-                        window.history.replaceState({}, "", `/cheat/chat/1v1?id=${roomId}&u=${userId}`);
-                        panelData[0].url = location.href;
-                        sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
-                        openUser(userPanel, userId);
-                        addSystemLog(`${partner.display_name} matched`);
-                        if (partner.location) {
-                            addSystemLog(`location: ${partner.location.toLowerCase()}`);
-                        }
-                        if (partner.language) {
-                            addSystemLog(`language: ${partner.language.toLowerCase()}`);
-                        }
-                        if (partner.interests && partner.interests.length > 0) {
-                            addSystemLog(`interests: ${partner.interests.map(interest => interest.name).join(", ")}`);
-                            let sharedInterests = partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
-                            if (sharedInterests.length > 0) {
-                                addSystemLog(`shared interests: ${sharedInterests.map(interest => interest.name).join(", ")}`);
+                        if (!roomId) {
+                            matchStillConnected = true;
+                            let partner = messageJson.message.room_data.partner;
+                            roomId = messageJson.message.room_id;
+                            userId = partner.id;
+                            window.history.replaceState({}, "", `/cheat/chat/1v1?id=${roomId}&u=${userId}`);
+                            panelData[0].url = location.href;
+                            sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
+                            openUser(userPanel, userId);
+                            addSystemLog(`${partner.display_name} matched`);
+                            if (partner.location) {
+                                addSystemLog(`location: ${partner.location.toLowerCase()}`);
+                            }
+                            if (partner.language) {
+                                addSystemLog(`language: ${partner.language.toLowerCase()}`);
+                            }
+                            if (partner.interests && partner.interests.length > 0) {
+                                addSystemLog(`interests: ${partner.interests.map(interest => interest.name).join(", ")}`);
+                                let sharedInterests = partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
+                                if (sharedInterests.length > 0) {
+                                    addSystemLog(`shared interests: ${sharedInterests.map(interest => interest.name).join(", ")}`);
+                                }
                             }
                         }
                     } else if (messageJson.message && messageJson.message.disconnect) {
                         disconnected = true;
-                        if (messageJson.message.user && messageJson.message.user.id !== currentUser.id) {
-                            let eventUserId = messageJson.message.user.id;
-                            for (let [typingUserId, typingUserTimeout] in typingUsers.entries()) {
-                                if (typingUserTimeout) {
-                                    clearTimeout(typingUserTimeout);
+                        if (messageJson.message.user) {
+                            if (messageJson.message.user.id !== currentUser.id) {
+                                for (let [typingUserId, typingUserTimeout] in typingUsers.entries()) {
+                                    if (typingUserTimeout) {
+                                        clearTimeout(typingUserTimeout);
+                                    }
+                                }
+                                typingUsers.clear();
+                                input.classList.remove("typing");
+                                
+                                let lastMessage = messageContainer.lastElementChild;
+                                if (lastMessage?.innerHTML === "partner is lost") {
+                                    lastMessage.innerHTML = "partner left";
+                                } else {
+                                    addSystemLog("partner left");
+                                }
+                            } else {
+                                let lastMessage = messageContainer.lastElementChild;
+                                if (lastMessage?.innerHTML === "you are lost") {
+                                    lastMessage.innerHTML = "you left";
+                                } else {
+                                    addSystemLog("you left");
                                 }
                             }
-                            typingUsers.clear();
-                            input.classList.remove("typing");
-                        }
-                        let lastMessage = messageContainer.lastElementChild;
-                        if (lastMessage?.innerHTML === "partner is lost") {
-                            lastMessage.innerHTML = "partner left";
-                        } else {
-                            addSystemLog("partner left");
                         }
                     }
                 } else if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":\"${roomId}\"}` && messageJson.message) {
@@ -263,28 +280,42 @@ async function open1v1(panel, userPanel) {
                             addSystemLog("partner is back");
                         }
                     } else if (messageJson.message.user_disconnected) {
-                        if (messageJson.message.user && messageJson.message.user.id !== currentUser.id) {
-                            let eventUserId = messageJson.message.user.id;
-                            let timeout = typingUsers.get(eventUserId);
-                            if (timeout) {
-                                clearTimeout(timeout);
+                        if (messageJson.message.user) {
+                            if (messageJson.message.user.id !== currentUser.id) {
+                                let eventUserId = messageJson.message.user.id;
+                                let timeout = typingUsers.get(eventUserId);
+                                if (timeout) {
+                                    clearTimeout(timeout);
+                                }
+                                typingUsers.delete(eventUserId);
+                                if (typingUsers.size === 0) {
+                                    input.classList.remove("typing");
+                                }
+
+                                if (!disconnected) {
+                                    partnerEverLost = true;
+                                    addSystemLog("partner is lost");
+                                }
+                            } else {
+                                if (disconnectRequested) {
+                                    matchStillConnected = false;
+                                    sendToMessageSock("bye now");
+                                }
+                                addSystemLog("you are lost");
                             }
-                            typingUsers.delete(eventUserId);
-                            if (typingUsers.size === 0) {
-                                input.classList.remove("typing");
-                            }
-                        }
-                        if (!disconnected) {
-                            partnerEverLost = true;
-                            addSystemLog("partner is lost");
                         }
                     }
                 }
             },
-            send => {
+            async send => {
                 if (roomId) {
                     send({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                 } else {
+                    if (matchStillConnected) {
+                        while (matchStillConnected) {
+                            await new Promise(resolve => setTimeout(resolve, 50));
+                        }
+                    }
                     send({ command: "subscribe", identifier: JSON.stringify({ channel: "MatchChannel" }) });
                     addSystemLog("searching...");
                 }
