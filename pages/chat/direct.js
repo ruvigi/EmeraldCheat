@@ -100,19 +100,13 @@ async function openDirectChat(panel) {
             })
         });
     }
-    let typingInterval;
-    let typingTimeout;
+    let lastTyping = 0;
     input.addEventListener('input', () => {
-        if (!typingInterval) {
+        let now = Date.now();
+        if (now - lastTyping >= 1000) {
             typing();
-            typingInterval = setInterval(typing, 1000);
+            lastTyping = now;
         }
-
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => {
-            clearInterval(typingInterval);
-            typingInterval = null;
-        }, 1000);
     });
     input.setAttribute("autofocus", "");
 
