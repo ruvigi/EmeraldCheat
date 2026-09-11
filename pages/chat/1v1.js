@@ -210,30 +210,19 @@ async function open1v1(panel, userPanel) {
                         }
                     } else if (messageJson.message && messageJson.message.disconnect) {
                         disconnected = true;
-                        if (messageJson.message.user) {
-                            if (messageJson.message.user.id !== currentUser.id) {
-                                for (let [typingUserId, typingUserTimeout] in typingUsers.entries()) {
-                                    if (typingUserTimeout) {
-                                        clearTimeout(typingUserTimeout);
-                                    }
-                                }
-                                typingUsers.clear();
-                                input.classList.remove("typing");
-                                
-                                let lastMessage = messageContainer.lastElementChild;
-                                if (lastMessage?.innerHTML === "partner is lost") {
-                                    lastMessage.innerHTML = "partner left";
-                                } else {
-                                    addSystemLog("partner left");
-                                }
-                            } else {
-                                let lastMessage = messageContainer.lastElementChild;
-                                if (lastMessage?.innerHTML === "you are lost") {
-                                    lastMessage.innerHTML = "you left";
-                                } else {
-                                    addSystemLog("you left");
-                                }
+                        for (let [typingUserId, typingUserTimeout] in typingUsers.entries()) {
+                            if (typingUserTimeout) {
+                                clearTimeout(typingUserTimeout);
                             }
+                        }
+                        typingUsers.clear();
+                        input.classList.remove("typing");
+                        
+                        let lastMessage = messageContainer.lastElementChild;
+                        if (lastMessage?.innerHTML === "partner is lost") {
+                            lastMessage.innerHTML = "partner left";
+                        } else {
+                            addSystemLog("partner left");
                         }
                     }
                 } else if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":\"${roomId}\"}` && messageJson.message) {
