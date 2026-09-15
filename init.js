@@ -65,11 +65,15 @@ async function init() {
     await stealFromApp();
     database = await openDatabase();
     deleteExpiredPictures();
+    deleteOldTemps();
     sendToWebSocket = await openSocket(
-        m => {
+        async m => {
             if (!m.identifier) return;
             let identifier = JSON.parse(m.identifier);
             if (identifier.channel === "EventsChannel" && m.message) {
+                if (m.message.user) {
+                    await collectUser(m.message.user, "dms");
+                }
                 if (m.message.notification_update === true) {
                     if (!notiButton.classList.contains("text-gold")) {
                         notiButton.classList.add("text-gold");
@@ -81,8 +85,13 @@ async function init() {
                     }
                     document.title = "(1) EmeraldCheat";
                 }
-            } else if (identifier.channel === "RoomChannel" && m.type === "confirm_subscription") {
-                sendToWebSocket({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });
+            } else if (identifier.channel === "RoomChannel") {
+                if (m.message?.user) {
+                    await collectUser(m.message.user, "gc");
+                }
+                if (m.type === "confirm_subscription") {
+                    sendToWebSocket({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });
+                }
             }
         },
         send => {

@@ -146,6 +146,10 @@ async function openDirectChat(panel) {
 
         sendToMessageSock = await openSocket(
             async messageJson => {
+                if (messageJson.message?.user) {
+                    await collectUser(messageJson.message.user, "dms");
+                }
+
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":${userJson.room_id}}` && messageJson.message) {
                     if (messageJson.message.messages) {
                         await addMessage(messageJson.message);

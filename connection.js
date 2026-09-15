@@ -63,6 +63,14 @@ async function deleteExpiredPictures() {
     }
 }
 
+async function deleteOldTemps() {
+    for (let entry of await getAllDatabaseJSON("KnownUsers")) {
+        if (entry.temp && new Date() - new Date(entry.firstSeen.timestamp) >= 2592000000) {
+            await deleteDatabaseJSON("KnownUsers", entry.key);
+        }
+    }
+}
+
 async function preloadImage(url, element) {
     if (!(url.includes("/rails/active_storage/blobs/redirect/") || url.includes("/rails/active_storage/representations/redirect/"))) {
         element.src = url;

@@ -43,6 +43,7 @@ async function openMessages(panel) {
 
     for (let tuple of tuples) {
         let item = tuple.item;
+        await collectUser(item.data.message.user, "dms");
         let row = createElement("a", container, { className:"flex-row fill-width text-inactive", href:`/cheat/chat/direct?id=${item.data.sender.id}` });
         createElement("img", row, { className:"image flex-grow-0", style:"width: 3rem; height: 3rem;", src:userThumbnail(item.data.sender) });
         let column = createElement("div", row, { className:"flex-grow-1 flex-column fill-width flex-block-overflow gap-0" });

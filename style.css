@@ -232,7 +232,7 @@ input::placeholder {
     width: 100%;
 }
 
-.interests, .quick-bans {
+.interests {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -245,8 +245,14 @@ input::placeholder {
     font-size: 0.75rem;
 }
 
-.quick-bans {
+.facts {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
+}
+
+.facts * {
+    font-size: 0.75rem;
 }
 
 .text-highlighted {

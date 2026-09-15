@@ -23,7 +23,7 @@ function focusPanel(index) {
     }
 }
 
-function createElement(type, parent, {className, style, onclick, href, text, src, srcFull, prepend, after}) {
+function createElement(type, parent, {className, style, onclick, href, text, src, srcFull, prepend, after, before}) {
     let element = document.createElement(type);
     if (className)
         element.className = className;
@@ -44,6 +44,8 @@ function createElement(type, parent, {className, style, onclick, href, text, src
     }
     if (after) {
         after.after(element);
+    } else if (before) {
+        before.before(element);
     } else if (parent) {
         if (prepend) {
             parent.prepend(element);

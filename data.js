@@ -21,10 +21,10 @@ function setStorageJSON(key, obj) {
 
 function openDatabase() {
     return new Promise((resolve, reject) => {
-        let request = indexedDB.open("EmeraldCheat", 3);
+        let request = indexedDB.open("EmeraldCheat", 4);
         request.onupgradeneeded = event => {
             let db = event.target.result;
-            for (let storeName of ["PictureDates"]) {
+            for (let storeName of ["PictureDates", "KnownUsers"]) {
                 if (!db.objectStoreNames.contains(storeName)) {
                     db.createObjectStore(storeName, { keyPath: "key" });
                 }
@@ -143,6 +143,16 @@ function countArray(array, condition) {
     return count;
 }
 
+function arraysEqual(array1, array2) {
+    if (array1.length !== array2.length) return false;
+
+    for (var i = 0; i < array1.length; ++i)
+        if (array1[i] !== array2[i])
+            return false;
+
+    return true;
+}
+
 function mergeAndShuffle(items1, items2) {
     let map = new Map();
     for (let item of [...items1, ...items2]) {
@@ -156,10 +166,10 @@ function mergeAndShuffle(items1, items2) {
 
 function interestMatchesWords(interest, words) {
     return words.some(p =>
-        interest.name.split(" ").includes(p) ||
-        interest.name === p.split("").join(" ") ||
-        interest.name === p.replace(" ", "") ||
-        interest.name === p
+        interest.split(" ").includes(p) ||
+        interest === p.split("").join(" ") ||
+        interest === p.replace(" ", "") ||
+        interest === p
     );
 }
 
@@ -224,4 +234,50 @@ function tryGetImageUrl(line) {
     } catch {
         return null;
     }
+}
+
+async function collectUser(user, context) {
+    if (!context) {
+        alert("context not set :(");
+        return;
+    }
+    let entry = await getDatabaseJSON("KnownUsers", user.id);
+    let changed = false;
+    if (!entry) {
+        entry = {
+            key: user.id,
+            firstSeen: {
+                context,
+                timestamp: new Date().toISOString()
+            },
+            names: [],
+            temp: user.temp || (new Date(user.last_logged_in_at) - new Date(user.created_at) < 259200000 && !(user.gold || user.platinum))
+        };
+        changed = true;
+    }
+    if (user.gender && user.gender !== entry.gender) {
+        entry.gender = user.gender;
+        changed = true;
+    }
+    if (user.location && user.location !== entry.location) {
+        entry.location = user.location;
+        changed = true;
+    }
+    if (user.language && user.language !== entry.language) {
+        entry.language = user.language;
+        changed = true;
+    }
+    if (user.display_name && !entry.names.includes(user.display_name)) {
+        entry.names.push(user.display_name);
+        changed = true;
+    }
+    if (user.interests && (!entry.interests || !arraysEqual(user.interests.map(i => i.name), entry.interests))) {
+        entry.interests = user.interests.map(i => i.name);
+        changed = true;
+    }
+    if (changed) {
+        await setDatabaseJSON("KnownUsers", entry);
+        console.log("collected user " + entry.key);
+    }
+    return entry;
 }

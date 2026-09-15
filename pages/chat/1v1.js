@@ -158,6 +158,10 @@ async function open1v1(panel, userPanel) {
 
         sendToMessageSock = await openSocket(
             async messageJson => {
+                if (messageJson.message?.user) {
+                    await collectUser(messageJson.message.user, "1v1");
+                }
+
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"MatchChannel\"}`) {
                     if (messageJson.type === "confirm_subscription") {
                         sendToMessageSock({
@@ -189,26 +193,16 @@ async function open1v1(panel, userPanel) {
                             let partner = messageJson.message.room_data.partner;
                             roomId = messageJson.message.room_id;
                             userId = partner.id;
+                            await collectUser(partner, "1v1");
                             window.history.replaceState({}, "", `/cheat/chat/1v1?id=${roomId}&u=${userId}`);
                             panelData[0].url = location.href;
                             sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
                             openUser(userPanel, userId);
-                            addSystemLog(`${partner.display_name} matched`);
-                            if (partner.location) {
-                                addSystemLog(`location: ${partner.location.toLowerCase()}`);
-                            }
-                            if (partner.language) {
-                                addSystemLog(`language: ${partner.language.toLowerCase()}`);
-                            }
-                            if (partner.gender) {
-                                addSystemLog(`gender: ${partner.gender.toLowerCase()}`);
-                            }
-                            if (partner.interests && partner.interests.length > 0) {
-                                addSystemLog(`interests: ${partner.interests.map(interest => interest.name).join(", ")}`);
-                                let sharedInterests = partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
-                                if (sharedInterests.length > 0) {
-                                    addSystemLog(`shared interests: ${sharedInterests.map(interest => interest.name).join(", ")}`);
-                                }
+                            let lastMessage = messageContainer.lastElementChild;
+                            if (lastMessage?.innerHTML === "searching...") {
+                                lastMessage.innerHTML = `${partner.display_name} matched`;
+                            } else {
+                                addSystemLog(`${partner.display_name} matched`);
                             }
                         }
                     } else if (messageJson.message && messageJson.message.disconnect) {
