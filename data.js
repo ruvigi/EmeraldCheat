@@ -163,10 +163,6 @@ function interestMatchesWords(interest, words) {
     );
 }
 
-function anyInterestMatchesWords(user, words) {
-    return user.interests && user.interests.some(interest => interestMatchesWords(interest, words));
-}
-
 function roleName(user) {
     return user.master ? "master" : user.mod ? "mod" : user.platinum ? "platinum" : user.gold ? "gold" : !user.temp ? "registered" : "temp";
 }

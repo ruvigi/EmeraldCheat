@@ -21,25 +21,12 @@
 
 //filmer init.js
 
-//filmer ban.js
-
 
 //filmer pages/chat/1v1.js
 
 //filmer pages/chat/direct.js
 
 //filmer pages/chat/group.js
-
-
-//filmer pages/mod/queue.js
-
-//filmer pages/mod/reports.js
-
-//filmer pages/mod/spam.js
-
-//filmer pages/mod/user-mod.js
-
-//filmer pages/mod/videos.js
 
 
 //filmer pages/people/friends.js

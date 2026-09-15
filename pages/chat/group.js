@@ -166,7 +166,7 @@ async function openGroup(panel, userPanel) {
                         if (users.has(messageJson.message.user.id)) {
                             let tuple = users.get(messageJson.message.user.id);
                             tuple.count--;
-                            if (tuple.count <= 0 || (messageJson.message.user.mod && !currentUser.mod)) {
+                            if (tuple.count <= 0) {
                                 users.delete(messageJson.message.user.id);
                                 tuple.element.remove();
                             }

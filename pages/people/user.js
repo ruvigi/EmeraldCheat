@@ -4,27 +4,6 @@ const illegalWords = ["brother", "sister", "father", "snuff", "necro", "zoophili
 const illegalWithSexualWords = ["sis", "dog", "dogs", "horse", "horses", "parent", "parents", "zoo", "beast", "taboo"];
 const sexualWords = ["cumshot", "facial", "nipples", "cleavage", "paag", "thicc", "leggings", "booty", "ass", "panties", "size queen", "macromastia", "girth", "girthy", "diaper", "cuck", "diapered", "diapers", "abdl", "potty", "bedwetting", "bedwetter", "cumslut", "nolimits", "spanking", "spank", "choke", "choking", "obedient", "ftm", "mtf", "blackmail", "hypno", "hypnosis", "hypnotize", "smut", "voyeur", "blowjob", "bj", "nudism", "nudist", "cheating", "pregnant", "race play", "use me", "exhibitionist", "dominant", "humiliate", "humiliated", "degrading", "humiliation", "kink", "bdsm", "gang bang", "cuckold", "gooned", "ovulating", "nympho", "groping", "creampie", "foreplay", "condom", "fingering", "twink", "free use", "age play", "degrade", "degradation", "degraded", "ddlg", "femboy", "trans", "dom", "femdom", "dominatrix", "domme", "slave", "chastity", "doggy", "pegging", "petplay", "naughty", "submissive", "sub", "age gap", "gooning", "gooner", "wank", "joi", "hookup", "squirt", "butt", "buttslut", "virgin", "sugar baby", "hot", "cnc", "goonette", "pawg", "blacked", "anal", "threesome", "stepdad", "stepfather", "step sis", "step dad", "step bro", "hung", "fwb", "bimbo", "milf", "brainwashing", "brainwashed", "brainwash", "pervert", "perv", "perverted", "pervy", "bop", "slut", "whore", "furry", "roleplay", "rp", "gay", "bi", "lesbian", "dick", "moan", "flashing", "tits", "boobs", "cum", "orgasm", "orgasms", "wet", "snow bunny", "snowbunny", "glory hole", "gloryhole", "horny", "goon", "pussy", "daddy", "mommy", "breasts", "breeding", "bbc", "bwc", "jerk", "jerking", "bikini", "jizz"];
 
-async function analyze(user) {
-    let sexual = anyInterestMatchesWords(user, sexualWords);
-    let child = anyInterestMatchesWords(user, childWords) || (anyInterestMatchesWords(user, childWithSexualWords) && sexual);
-    let illegal = anyInterestMatchesWords(user, illegalWords) || (anyInterestMatchesWords(user, illegalWithSexualWords) && sexual);
-
-    let analysis = {
-        key: user.id,
-        sexual: sexual,
-        child: child,
-        illegal: illegal,
-        master: user.master,
-        mod: user.mod,
-        platinum: user.platinum,
-        gold: user.gold,
-        temp: user.temp || (new Date() - new Date(user.created_at) < 259200000 && !(user.gold || user.platinum)),
-        lastAnalyzed: new Date().toISOString()
-    };
-
-    return analysis;
-}
-
 //opens the user panel for the given user ID
 async function openUser(panel, userId) {
     panel.innerHTML = "";
@@ -36,43 +15,6 @@ async function openUser(panel, userId) {
     if (!user) return;
 
     await addUserHeader(panel, userJson, true);
-
-    let analysis = await analyze(user);
-
-    if (currentUser.mod) {
-        let quickBanContainer = createElement("div", panel, {className:"quick-bans"});
-
-        let banOptions = [];
-        if ((new Date() - new Date(user.created_at) < 259200000) && !user.platinum && !user.gold) {
-            banOptions.push({ name: "cp/csa", duration: ban3d.value, reason: banCSA.value, suggested: analysis.child });
-            banOptions.push({ name: "illegal", duration: ban3d.value, reason: banIllegal.value, suggested: analysis.illegal });
-        } else {
-            banOptions.push({ name: "any illegal", duration: ban10y.value, reason: banPerm.value, suggested: analysis.child || analysis.illegal });
-        }
-        banOptions.push(...quickBans);
-
-        for (let quickBan of banOptions) {
-            createElement("a", quickBanContainer, {className:"small-button" + (quickBan.suggested ? " suggestion" : ""), text:quickBan.name, onclick:async e => {
-                if (e.target.classList.contains("suggestion")) {
-                    e.target.classList.remove("suggestion");
-                }
-                if (e.target.classList.contains("confirm")) {
-                    if (quickBan.duration >= ban10y.value) {
-                        navigator.clipboard.writeText(`${user.platinum||user.gold?"[Paying user]\n":""}${user.display_name} #${user.username} // ${user.id}\nInterests: ${(user.interests ?? []).map(i => i.name).join(", ")}\n`);
-                    }
-                    e.target.classList.remove("confirm");
-                    e.target.innerHTML = "banning...";
-                    await banUser(user.id, quickBan.duration, quickBan.reason);
-                    e.target.innerHTML = quickBan.name;
-                    if (!e.target.classList.contains("text-highlighted")) {
-                        e.target.classList.add("text-highlighted");
-                    }
-                } else {
-                    e.target.classList.add("confirm");
-                }
-            } });
-        }
-    }
 
     if (user.bio !== "This user has not filled in their profile yet")
         createElement("span", panel, {className:"text-centered", text:user.bio});
@@ -186,7 +128,6 @@ async function addComments(element, commentIds, postId) {
 
 async function addUserHeader(panel, userJson, isMain) {
     let user = userJson.user;
-    let statusJson = currentUser.mod ? await loadJSON(`/user_status?id=${userJson.user.id}`, true) : null;
 
     let mainRow = createElement("div", panel, {className:"flex-row", style:"align-items: start"});
 
@@ -202,13 +143,6 @@ async function addUserHeader(panel, userJson, isMain) {
     createElement("span", panel, {text:"#"+user.username, className:"flex-block-overflow"});
 
     let buttonRow = createElement("div", panel, {className:"flex-row"});
-    if (currentUser.mod) {
-        if (isMain) {
-            createElement("a", buttonRow, { className:"button", text:"mod", href:`/cheat/mod/user?id=${user.id}` });
-        } else {
-            createElement("a", buttonRow, { className:"button", text:"back", onclick:e => window.history.back() });
-        }
-    }
     if (user.id !== currentUser.id) {
         let removeElement, pendingElement, addElement, messageElement;
         removeElement = createElement("a", buttonRow, { text: "remove", className: "button hidden", onclick: async e => { await sendActionRequest(`/friends_destroy?id=${user.id}`); removeElement.classList.add("hidden"); addElement.classList.remove("hidden"); messageElement.classList.add("hidden"); } });
