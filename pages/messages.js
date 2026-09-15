@@ -51,7 +51,7 @@ async function openMessages(panel) {
         createElement("span", heading, { text:timeSince(item.created_at), style:"font-size: 0.75rem", className: tuple.unread ? "text-gold" : null });
         function addContent(text) {
             let content = createElement("span", column, {});
-            createElement("span", content, { text:`${item.data.message.user === currentUser.id ? "you" : translateGenderToPrefix(item.data.sender.gender)}: `, className: "text-normal" });
+            createElement("span", content, { text:`${item.data.message.user === currentUser.id ? "you" : translateGenderToPrefix(item.data.message.user.gender)}: `, className: "text-normal" });
             createElement("span", content, { text: text });
         }
         if (item.data.message.picture) {
