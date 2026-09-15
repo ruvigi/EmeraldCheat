@@ -200,6 +200,9 @@ async function open1v1(panel, userPanel) {
                             if (partner.language) {
                                 addSystemLog(`language: ${partner.language.toLowerCase()}`);
                             }
+                            if (partner.gender) {
+                                addSystemLog(`gender: ${partner.gender.toLowerCase()}`);
+                            }
                             if (partner.interests && partner.interests.length > 0) {
                                 addSystemLog(`interests: ${partner.interests.map(interest => interest.name).join(", ")}`);
                                 let sharedInterests = partner.interests.filter(theirs => currentUser.interests.some(mine => mine.name == theirs.name));
