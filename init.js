@@ -8,6 +8,8 @@ if (window.location.pathname == "/cheat" || window.location.pathname.startsWith(
     init();
 } else if (window.location.pathname === "/old/app") {
     window.addEventListener("load", inject, false);
+} else if (window.location.pathname.startsWith("/app/")) {
+    window.addEventListener("load", injectNew, false);
 }
 
 //injects a button to navigate to the cheat
@@ -17,6 +19,14 @@ function inject() {
     cheatMenuOpener.innerText = "EmeraldCheat";
     cheatMenuOpener.addEventListener("click", () => window.location.assign("/cheat"));
     burgerContent.prepend(cheatMenuOpener);
+}
+function injectNew() {
+    let lastMenuItem = document.querySelector("nav div:last-child div:first-child ul li:last-of-type");
+    if (!lastMenuItem)
+        return;
+    let li = createElement("li", lastMenuItem.parentElement, {after: lastMenuItem});
+    let a = createElement("a", li, {href: "/cheat"});
+    createElement("span", a, {text: "EmeraldCheat <3"});
 }
 
 //loads the cheat page
