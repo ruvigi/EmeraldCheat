@@ -26,7 +26,8 @@ function injectNew() {
         return;
     let li = createElement("li", lastMenuItem.parentElement, {after: lastMenuItem});
     let a = createElement("a", li, {href: "/cheat"});
-    createElement("span", a, {text: "EmeraldCheat <3"});
+    createElement("span", a, {text: ":3"});
+    createElement("span", a, {text: "emeraldcheat"});
 }
 
 //loads the cheat page
