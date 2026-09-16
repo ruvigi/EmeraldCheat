@@ -52,7 +52,7 @@ async function openUser(panel, userId) {
     let factsContainer = createElement("div", panel, {className:"facts"});
     let noteText;
     noteText = createElement("span", factsContainer, {className:"text-centered", text:entry.note ?? "no note", onclick: async e => {
-        let newNote = prompt("enter a note").trim();
+        let newNote = prompt("enter a note", entry.note).trim();
         if (newNote == "")
             newNote = null;
         entry = await getDatabaseJSON("KnownUsers", entry.key);
