@@ -19,56 +19,103 @@ function setStorageJSON(key, obj) {
     localStorage.setItem(key, JSON.stringify(obj));
 }
 
-function openDatabase() {
-    return new Promise((resolve, reject) => {
-        let request = indexedDB.open("EmeraldCheat", 4);
-        request.onupgradeneeded = event => {
-            let db = event.target.result;
-            for (let storeName of ["PictureDates", "KnownUsers"]) {
-                if (!db.objectStoreNames.contains(storeName)) {
-                    db.createObjectStore(storeName, { keyPath: "key" });
+function keyString(key) {
+    if (key === undefined)
+        return "undefined";
+    else if (key === null)
+        return "null";
+    else return JSON.stringify(key);
+}
+
+async function openDatabase() {
+    try {
+        return await new Promise((resolve, reject) => {
+            let request = indexedDB.open("EmeraldCheat", 4);
+            request.onupgradeneeded = event => {
+                let db = event.target.result;
+                for (let storeName of ["PictureDates", "KnownUsers"]) {
+                    if (!db.objectStoreNames.contains(storeName)) {
+                        db.createObjectStore(storeName, { keyPath: "key" });
+                    }
                 }
-            }
-        };
-        request.onsuccess = event => {
-            resolve(event.target.result);
-        };
-        request.onerror = event => reject(event.target.error);
-    });
+            };
+            request.onsuccess = event => {
+                resolve(event.target.result);
+            };
+            request.onerror = event => {
+                alert("failed to upgrade db :(")
+                reject(event.target.error);
+            };
+        });
+    } catch (error) {
+        alert("failed to update db :(");
+        console.error(error);
+        alert(error.message);
+        alert(error.stack);
+    }
 }
 
-function getDatabaseJSON(storeName, key) {
-    return new Promise((resolve, reject) => {
-        let trans = database.transaction(storeName, "readonly");
+async function getDatabaseJSON(storeName, key) {
+    try {
+        return await new Promise((resolve, reject) => {
+            let trans = database.transaction(storeName, "readonly");
+            let store = trans.objectStore(storeName);
+            let request = store.get(key);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    } catch (error) {
+        alert("failed to get " + storeName + "." + keyString(key));
+        console.error(error);
+        alert(error.message);
+        alert(error.stack);
+    }
+}
+
+async function setDatabaseJSON(storeName, obj) {
+    try {
+        let trans = database.transaction(storeName, "readwrite");
         let store = trans.objectStore(storeName);
-        let request = store.get(key);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
+        store.put(obj);
+        await trans.complete;
+    } catch (error) {
+        alert("failed to set " + storeName + "." + keyString(obj.key));
+        alert(JSON.stringify(obj));
+        console.error(error);
+        alert(error.message);
+        alert(error.stack);
+    }
 }
 
-function setDatabaseJSON(storeName, obj) {
-    let trans = database.transaction(storeName, "readwrite");
-    let store = trans.objectStore(storeName);
-    store.put(obj);
-    return trans.complete;
-}
-
-function deleteDatabaseJSON(storeName, key) {
-    let trans = database.transaction(storeName, "readwrite");
-    let store = trans.objectStore(storeName);
-    store.delete(key);
-    return trans.complete;
-}
-
-function getAllDatabaseJSON(storeName) {
-    return new Promise((resolve, reject) => {
-        let trans = database.transaction(storeName, "readonly");
+async function deleteDatabaseJSON(storeName, key) {
+    try {
+        let trans = database.transaction(storeName, "readwrite");
         let store = trans.objectStore(storeName);
-        let request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
+        store.delete(key);
+        await trans.complete;
+    } catch (error) {
+        alert("failed to delete " + storeName + "." + keyString(key));
+        console.error(error);
+        alert(error.message);
+        alert(error.stack);
+    }
+}
+
+async function getAllDatabaseJSON(storeName) {
+    try {
+        return await new Promise((resolve, reject) => {
+            let trans = database.transaction(storeName, "readonly");
+            let store = trans.objectStore(storeName);
+            let request = store.getAll();
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    } catch (error) {
+        alert("failed to get all in " + storeName);
+        console.error(error);
+        alert(error.message);
+        alert(error.stack);
+    }
 }
 
 function clearDatabaseStore(storeName) {
@@ -237,6 +284,13 @@ function tryGetImageUrl(line) {
 }
 
 async function collectUser(user, context) {
+    if (!user) {
+        return;
+    }
+    if (!user.id) {
+        alert("user without id (" + context + "): " + JSON.stringify(user));
+        return;
+    }
     if (!context) {
         alert("context not set :(");
         return;
@@ -247,7 +301,7 @@ async function collectUser(user, context) {
         entry = {
             key: user.id,
             firstSeen: {
-                context,
+                context: context.split(" ")[0],
                 timestamp: new Date().toISOString()
             },
             names: [],

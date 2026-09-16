@@ -66,13 +66,14 @@ async function init() {
     database = await openDatabase();
     deleteExpiredPictures();
     deleteOldTemps();
+    await collectUser(currentUser, "account");
     sendToWebSocket = await openSocket(
         async m => {
             if (!m.identifier) return;
             let identifier = JSON.parse(m.identifier);
             if (identifier.channel === "EventsChannel" && m.message) {
                 if (m.message.user) {
-                    await collectUser(m.message.user, "dms");
+                    await collectUser(m.message.user, "dms event");
                 }
                 if (m.message.notification_update === true) {
                     if (!notiButton.classList.contains("text-gold")) {
@@ -87,7 +88,7 @@ async function init() {
                 }
             } else if (identifier.channel === "RoomChannel") {
                 if (m.message?.user) {
-                    await collectUser(m.message.user, "gc");
+                    await collectUser(m.message.user, "gc event");
                 }
                 if (m.type === "confirm_subscription") {
                     sendToWebSocket({ command: "unsubscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: identifier.room_id }) });

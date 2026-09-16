@@ -151,7 +151,7 @@ async function openGroup(panel, userPanel) {
         sendToMessageSock = await openSocket(
             async messageJson => {
                 if (messageJson.message?.user) {
-                    await collectUser(messageJson.message.user, "gc");
+                    await collectUser(messageJson.message.user, "gc normal");
                 }
 
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"RoomChannel\",\"room_id\":\"channel${groupId}\"}` && messageJson.message) {

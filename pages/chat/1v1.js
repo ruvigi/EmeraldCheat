@@ -159,7 +159,7 @@ async function open1v1(panel, userPanel) {
         sendToMessageSock = await openSocket(
             async messageJson => {
                 if (messageJson.message?.user) {
-                    await collectUser(messageJson.message.user, "1v1");
+                    await collectUser(messageJson.message.user, "1v1 normal");
                 }
 
                 if (messageJson.identifier && messageJson.identifier === `{\"channel\":\"MatchChannel\"}`) {
@@ -193,7 +193,7 @@ async function open1v1(panel, userPanel) {
                             let partner = messageJson.message.room_data.partner;
                             roomId = messageJson.message.room_id;
                             userId = partner.id;
-                            await collectUser(partner, "1v1");
+                            await collectUser(partner, "1v1 match");
                             window.history.replaceState({}, "", `/cheat/chat/1v1?id=${roomId}&u=${userId}`);
                             panelData[0].url = location.href;
                             sendToMessageSock({ command: "subscribe", identifier: JSON.stringify({ channel: "RoomChannel", room_id: roomId }) });
