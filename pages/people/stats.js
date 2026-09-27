@@ -17,13 +17,13 @@ async function openStats(panel) {
     createElement("span", panel, {className:"text-highlighted", text:"locations"});
     let locationPanel = createElement("div", panel, {className:"facts gap-0 center-items"});
     for (let [location, count] of [...stats.locations.map.entries()].sort(([l1, c1], [l2, c2]) => c2 - c1))
-        createElement("span", locationPanel, {text:`${location}: ${ratio(count, stats.total)}`});
+        createElement("span", locationPanel, {text:`${location.toLowerCase()}: ${ratio(count, stats.total)}`});
     createElement("span", locationPanel, {text:`unknown: ${stats.locations.unknown}`});
 
     createElement("span", panel, {className:"text-highlighted", text:"languages"});
     let languagePanel = createElement("div", panel, {className:"facts gap-0 center-items"});
     for (let [language, count] of [...stats.languages.map.entries()].sort(([l1, c1], [l2, c2]) => c2 - c1))
-        createElement("span", languagePanel, {text:`${language}: ${ratio(count, stats.total)}`});
+        createElement("span", languagePanel, {text:`${language.split(';')[0].split(',')[0].toLowerCase()}: ${ratio(count, stats.total)}`});
     createElement("span", languagePanel, {text:`unknown: ${stats.locations.unknown}`});
 }
 

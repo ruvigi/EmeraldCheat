@@ -62,7 +62,7 @@ async function openUser(panel, userId) {
     if (entry.key === 12859457)
         createElement("span", factsContainer, {className:"text-centered text-green", text:"developer"});
     else if (entry.location && entry.language)
-        createElement("span", factsContainer, {className:"text-centered", text:entry.location.toLowerCase() + ", " + entry.language.split(';')[0].toLowerCase()});
+        createElement("span", factsContainer, {className:"text-centered", text:entry.location.toLowerCase() + ", " + entry.language.split(';')[0].split(',')[0].toLowerCase()});
     if (entry.names.length > 1)
         createElement("span", factsContainer, {className:"text-centered", text:"other names: " + entry.names.filter(n => n !== user.display_name).join(", ")});
     if (user.hide_interests)
