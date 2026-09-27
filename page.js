@@ -168,7 +168,13 @@ async function loadPage(usesMainPanel, usesUserPanel, func) {
         focusPanel(usesMainPanel ? 0 : 1);
 
         if (result) {
-            result();
+            if (typeof result === 'function') {
+                result();
+            } else {
+                alert("load result is not a function :(");
+                alert(result);
+                alert("load result is not a function :(", result);
+            }
         }
     } else {
         //reset panels if they are loading

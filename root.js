@@ -35,6 +35,8 @@
 
 //filmer pages/people/search.js
 
+//filmer pages/people/stats.js
+
 
 //filmer pages/messages.js
 

@@ -39,12 +39,14 @@ async function render() {
                     createElement("a", container, {className:"button", text:"online", href:"/cheat/people/online-friends"});
                     createElement("a", container, {className:"button", text:"search", href:"/cheat/people/search"});
                     createElement("a", container, {className:"button", text:"me", href:`/cheat/people/user?id=${currentUser.id}`});
+                    createElement("a", container, {className:"button", text:"stats", href:"/cheat/people/stats"});
                 });
                 break;
             case "/cheat/people/user": await loadPage(false, true, openUser); break;
             case "/cheat/people/friends": await loadPage(true, false, openFriends); break;
             case "/cheat/people/online-friends": await loadPage(true, false, openOnlineFriends); break;
             case "/cheat/people/search": await loadPage(true, false, openSearch); break;
+            case "/cheat/people/stats": await loadPage(true, false, openStats); break;
 
 
             default: await loadPage(true, false, mainPanel => mainPanel.innerHTML = "not found :("); break;

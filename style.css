@@ -225,7 +225,7 @@ input::placeholder {
 }
 
 .gap-0 {
-    gap: 0;
+    gap: 0 !important;
 }
 
 .fill-width {
