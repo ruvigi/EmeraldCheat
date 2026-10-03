@@ -5,7 +5,8 @@ let sendToDirectSocket;
 
 //startup - either inject a button or load the cheat
 if (window.location.pathname == "/cheat" || window.location.pathname.startsWith("/cheat/")) {
-    init();
+    document.firstElementChild.innerHTML = "<body style=\"background: black;\"></body>";
+    window.addEventListener("load", init, false);
 } else if (window.location.pathname === "/old/app") {
     window.addEventListener("load", inject, false);
 } else if (window.location.pathname.startsWith("/app/")) {
@@ -32,6 +33,8 @@ function injectNew() {
 
 //loads the cheat page
 async function init() {
+    window.history.replaceState({}, "", window.location.href);
+
     document.firstElementChild.innerHTML = source;
 
     let wrappers = document.getElementsByClassName("wrapper");
@@ -72,7 +75,7 @@ async function init() {
         }
     });
     document.addEventListener("keydown", callOnKeyDown);
-    window.addEventListener("popstate", render);
+    window.addEventListener("popstate", async e => { console.warn("before", location.href); await render(); console.warn("after", location.href); });
     await stealFromApp();
     database = await openDatabase();
     deleteExpiredPictures();

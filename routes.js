@@ -49,7 +49,7 @@ async function render() {
             case "/cheat/people/stats": await loadPage(true, false, openStats); break;
 
 
-            default: await loadPage(true, false, mainPanel => mainPanel.innerHTML = "not found :("); break;
+            default: await loadPage(true, false, mainPanel => { mainPanel.innerHTML = "not found :(" }); break;
         }
     } catch (error) {
         console.error(error);

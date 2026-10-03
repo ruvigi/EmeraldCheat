@@ -173,7 +173,7 @@ async function loadPage(usesMainPanel, usesUserPanel, func) {
             } else {
                 alert("load result is not a function :(");
                 alert(result);
-                alert("load result is not a function :(", result);
+                console.error("load result is not a function :(", result);
             }
         }
     } else {
